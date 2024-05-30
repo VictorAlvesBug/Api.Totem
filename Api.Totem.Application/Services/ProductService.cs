@@ -18,9 +18,29 @@ namespace Api.Totem.Application.Services
 			return _productRepository.List<TProduct>();
 		}
 
+		public TProduct Get<TProduct>(string id) where TProduct : Product
+		{
+			return _productRepository.Get<TProduct>(id);
+		}
+
 		public TProduct Create<TProduct>(TProduct product) where TProduct : Product
 		{
-			return _productRepository.Create<TProduct>(product);
+			return _productRepository.Create(product);
+		}
+
+		public TProduct Update<TProduct>(TProduct product) where TProduct : Product
+		{
+			return _productRepository.Update(product);
+		}
+
+		public TProduct UpdateAvailability<TProduct>(TProduct product) where TProduct : Product
+		{
+			return _productRepository.UpdateAvailability(product);
+		}
+
+		public void Delete<TProduct>(string id) where TProduct : Product
+		{
+			_productRepository.Delete<TProduct>(id);
 		}
 	}
 }
