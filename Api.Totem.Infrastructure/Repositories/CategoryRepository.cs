@@ -6,8 +6,6 @@ namespace Api.Totem.Infrastructure.Repositories
 {
 	public class CategoryRepository : ICategoryRepository
 	{
-		private static readonly string _dataFolderPath = @"C:\Users\victo\OneDrive\Desktop\Pessoal\Projetos\Api.Totem\Api.Totem.Data";
-
 		public List<Category> List()
 		{
 			return FileUtils.GetListFromFile<Category>();

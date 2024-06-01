@@ -1,7 +1,6 @@
-﻿using Api.Totem.Domain.Entities;
+﻿using Api.Totem.Application.DTOs.Products;
+using Api.Totem.Application.DTOs.SideDishSets;
 using Api.Totem.Domain.Entities;
-using Api.Totem.Domain.Enumerators;
-using System.Xml.Linq;
 
 namespace Api.Totem.Application.DTOs.Categories
 {
@@ -10,10 +9,10 @@ namespace Api.Totem.Application.DTOs.Categories
 		public string Id { get; set; }
 		public string CategoryType { get; set; }
 		public string Name { get; set; }
-		public List<Product> Products { get; set; }
+		public List<ProductToShowDTO> Products { get; set; }
 		public string ComplementType { get; set; }
 		public List<SideDishSetToShowDTO>? SideDishSets { get; set; }
-		public List<Category>? ComboItemCategories { get; set; }
+		public List<CategoryToShowDTO>? ComboItemCategories { get; set; }
 		public decimal? ComboAdditionalPrice { get; set; }
 
 		public CategoryToShowDTO(Category category)
@@ -21,10 +20,10 @@ namespace Api.Totem.Application.DTOs.Categories
 			Id = category.Id;
 			CategoryType = category.CategoryType.ToString();
 			Name = category.Name;
-			Products = category.Products;
+			Products = category.Products?.Select(product => new ProductToShowDTO(product)).ToList();
 			ComplementType = category.ComplementType.ToString();
 			SideDishSets = category.SideDishSets?.Select(sideDishSet => new SideDishSetToShowDTO(sideDishSet)).ToList();
-			ComboItemCategories = category.ComboItemCategories;
+			ComboItemCategories = category.ComboItemCategories?.Select(comboItemCategory => new CategoryToShowDTO(comboItemCategory)).ToList();
 			ComboAdditionalPrice = category.ComboAdditionalPrice;
 
 		}

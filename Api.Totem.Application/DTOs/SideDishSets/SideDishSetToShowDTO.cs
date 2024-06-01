@@ -1,6 +1,6 @@
 ﻿using Api.Totem.Domain.Entities;
 
-namespace Api.Totem.Application.DTOs
+namespace Api.Totem.Application.DTOs.SideDishSets
 {
 	public class SideDishSetToShowDTO
 	{
