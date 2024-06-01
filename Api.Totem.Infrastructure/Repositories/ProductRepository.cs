@@ -1,45 +1,44 @@
 ﻿using Api.Totem.Domain.Interfaces.Repositories;
 using Api.Totem.Infrastructure.Models;
-using Api.Totem.Domain.Entities.Products;
+using Api.Totem.Domain.Entities;
 using Api.Totem.Domain.Enumerators;
 using Api.Totem.Helpers.Extensions;
 using Newtonsoft.Json;
+using Api.Totem.Infrastructure.Utils;
 
 namespace Api.Totem.Infrastructure.Repositories
 {
 	public class ProductRepository : IProductRepository
 	{
-		private static readonly string _dataFolderPath = @"C:\Users\victo\OneDrive\Desktop\Pessoal\Projetos\Api.Totem\Api.Totem.Data";
-
-		public List<TProduct> List<TProduct>() where TProduct : Product
+		public List<Product> List()
 		{
-			return GetListFromFile<TProduct>();
+			return FileUtils.GetListFromFile<Product>();
 		}
 
-		public TProduct Get<TProduct>(string id) where TProduct : Product
+		public Product Get(string id)
 		{
-			var products = GetListFromFile<TProduct>();
+			var products = FileUtils.GetListFromFile<Product>();
 
 			return products.FirstOrDefault(p => p.Id == id)
 				?? throw new ArgumentException($"No product was found with {nameof(id)} = {id}.");
 		}
 
-		public TProduct Create<TProduct>(TProduct product) where TProduct : Product
+		public Product Create(Product product)
 		{
-			var products = GetListFromFile<TProduct>();
+			var products = FileUtils.GetListFromFile<Product>();
 
 			product.Id = Guid.NewGuid().ToString();
 
 			products.Add(product);
 
-			SaveListToFile(products);
+			FileUtils.SaveListToFile(products);
 
 			return product;
 		}
 
-		public TProduct Update<TProduct>(TProduct product) where TProduct : Product
+		public Product Update(Product product)
 		{
-			var products = GetListFromFile<TProduct>();
+			var products = FileUtils.GetListFromFile<Product>();
 
 			if (!products.Any(p => p.Id == product.Id))
 				throw new ArgumentException($"No product was found with {nameof(product.Id)} = {product.Id}.");
@@ -52,14 +51,14 @@ namespace Api.Totem.Infrastructure.Repositories
 				return p;
 			}).ToList();
 
-			SaveListToFile(products);
+			FileUtils.SaveListToFile(products);
 
 			return product;
 		}
 
-		public TProduct UpdateAvailability<TProduct>(TProduct product) where TProduct : Product
+		public Product UpdateAvailability(Product product)
 		{
-			var products = GetListFromFile<TProduct>();
+			var products = FileUtils.GetListFromFile<Product>();
 
 			if (!products.Any(p => p.Id == product.Id))
 				throw new ArgumentException($"No product was found with {nameof(product.Id)} = {product.Id}.");
@@ -75,54 +74,21 @@ namespace Api.Totem.Infrastructure.Repositories
 				return p;
 			}).ToList();
 
-			SaveListToFile(products);
+			FileUtils.SaveListToFile(products);
 
 			return product;
 		}
 
-		public void Delete<TProduct>(string id) where TProduct : Product
+		public void Delete(string id)
 		{
-			var products = GetListFromFile<TProduct>();
+			var products = FileUtils.GetListFromFile<Product>();
 
 			if (!products.Any(p => p.Id == id))
 				throw new ArgumentException($"No product was found with {nameof(id)} = {id}.");
 
 			products = products.Where(p => p.Id != id).ToList();
 
-			SaveListToFile(products);
-		}
-
-		private List<TProduct> GetListFromFile<TProduct>() where TProduct : Product
-		{
-
-			(string filePath, string fileName, string strProductType) = GetProductSettings<TProduct>();
-
-			return JsonConvert.DeserializeObject<Response<TProduct>>(File.ReadAllText(filePath))?.Data
-					?? throw new ArgumentException($"File {fileName} could not be converted to {nameof(Response<TProduct>)} with {nameof(Response<TProduct>)} as {strProductType}.");
-		}
-
-		private static void SaveListToFile<TProduct>(List<TProduct> list) where TProduct : Product
-		{
-
-			(string filePath, string _, string _) = GetProductSettings<TProduct>();
-
-			File.WriteAllText(filePath, JsonConvert.SerializeObject(new Response<TProduct>(list)));
-		}
-
-		private static (string filePath, string fileName, string strProductType)
-			GetProductSettings<TProduct>() where TProduct : Product
-		{
-			string strProductType = typeof(TProduct).Name;
-			string fileName = strProductType.ToCamelCase();
-
-			string filePath = $@"{_dataFolderPath}\{fileName}.json";
-
-			if (!File.Exists(filePath))
-			{
-				throw new FileNotFoundException($"File {fileName} not found for {nameof(ProductType)} {strProductType}.");
-			}
-
-			return (filePath, fileName, strProductType);
+			FileUtils.SaveListToFile(products);
 		}
 	}
 }

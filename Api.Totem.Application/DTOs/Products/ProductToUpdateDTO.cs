@@ -1,22 +1,18 @@
-﻿using Api.Totem.Domain.Entities.Products;
-using Api.Totem.Domain.Enumerators;
+﻿using Api.Totem.Domain.Entities;
 
 namespace Api.Totem.Application.DTOs
 {
-	public class DrinkToUpdateDTO
+	public class ProductToUpdateDTO
 	{
 		public string Name { get; set; }
 		public string Description { get; set; }
-		public string CategoryId { get; set; }
 		public decimal Price { get; set; }
 
-		public Drink ToDrink(string id) => new Drink
+		public Product ToProduct(string id) => new Product
 		{
 			Id = id,
-			ProductType = ProductType.Drink,
 			Name = Name,
 			Description = Description,
-			CategoryId = CategoryId,
 			Price = Price,
 			Available = true
 		};

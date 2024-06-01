@@ -1,4 +1,4 @@
-﻿using Api.Totem.Domain.Entities.Products;
+﻿using Api.Totem.Domain.Entities;
 using Api.Totem.Domain.Interfaces.Repositories;
 using Api.Totem.Domain.Interfaces.Services;
 
@@ -13,34 +13,34 @@ namespace Api.Totem.Application.Services
 			_productRepository = productRepository;
 		}
 
-		public List<TProduct> List<TProduct>() where TProduct : Product
+		public List<Product> List()
 		{
-			return _productRepository.List<TProduct>();
+			return _productRepository.List();
 		}
 
-		public TProduct Get<TProduct>(string id) where TProduct : Product
+		public Product Get(string id)
 		{
-			return _productRepository.Get<TProduct>(id);
+			return _productRepository.Get(id);
 		}
 
-		public TProduct Create<TProduct>(TProduct product) where TProduct : Product
+		public Product Create(Product product)
 		{
 			return _productRepository.Create(product);
 		}
 
-		public TProduct Update<TProduct>(TProduct product) where TProduct : Product
+		public Product Update(Product product)
 		{
 			return _productRepository.Update(product);
 		}
 
-		public TProduct UpdateAvailability<TProduct>(TProduct product) where TProduct : Product
+		public Product UpdateAvailability(Product product)
 		{
 			return _productRepository.UpdateAvailability(product);
 		}
 
-		public void Delete<TProduct>(string id) where TProduct : Product
+		public void Delete(string id)
 		{
-			_productRepository.Delete<TProduct>(id);
+			_productRepository.Delete(id);
 		}
 	}
 }
