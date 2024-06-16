@@ -1,7 +1,10 @@
 using Api.Totem.Application.DTOs;
 using Api.Totem.Application.DTOs.Categories;
 using Api.Totem.Domain.Interfaces.Services;
+using Api.Totem.Helpers.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations;
 
 namespace Api.Totem.Application.Controllers
 {
@@ -52,7 +55,9 @@ namespace Api.Totem.Application.Controllers
 		{
 			try
 			{
-				return StatusCode(
+				categoryToCreate.Validate();
+
+				  return StatusCode(
 					StatusCodes.Status201Created,
 					new CategoryToShowDTO(_categoryService.Create(categoryToCreate.ToCategory()))
 				);
@@ -93,6 +98,16 @@ namespace Api.Totem.Application.Controllers
 			{
 				return BadRequest(ex.Message);
 			}
+		}
+
+		private string GetModelStateErrors(ModelStateDictionary modelState)
+		{
+			var errors = modelState
+				.Where(ms => ms.Value?.Errors.Any() ?? false)
+				.SelectMany(ms => ms.Value.Errors)
+				.Select(e => e.ErrorMessage);
+
+			return errors?.JoinThis() ?? string.Empty;
 		}
 	}
 }
