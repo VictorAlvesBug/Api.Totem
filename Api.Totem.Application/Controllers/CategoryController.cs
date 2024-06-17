@@ -59,7 +59,7 @@ namespace Api.Totem.Application.Controllers
 
 				  return StatusCode(
 					StatusCodes.Status201Created,
-					new CategoryToShowDTO(_categoryService.Create(categoryToCreate.ToCategory()))
+					new CategoryToShowDTO(_categoryService.Create(categoryToCreate.ToCategoryDto()))
 				);
 			}
 			catch (Exception ex)
@@ -76,7 +76,7 @@ namespace Api.Totem.Application.Controllers
 			{
 				return StatusCode(
 					StatusCodes.Status200OK,
-					new CategoryToShowDTO(_categoryService.Update(categoryToUpdate.ToCategory(id)))
+					new CategoryToShowDTO(_categoryService.Update(categoryToUpdate.ToCategoryDto(id)))
 				);
 			}
 			catch (Exception ex)

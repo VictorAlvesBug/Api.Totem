@@ -36,15 +36,15 @@ namespace Api.Totem.Infrastructure.Repositories
 		{
 			var categories = FileUtils.GetListFromFile<Category>();
 
-			if (!categories.Any(p => p.Id == category.Id))
+			if (!categories.Any(c => c.Id == category.Id))
 				throw new ArgumentException($"No category was found with {nameof(category.Id)} = {category.Id}.");
 
-			categories = categories.Select(p =>
+			categories = categories.Select(c =>
 			{
-				if (p.Id == category.Id)
-					p = category;
+				if (c.Id == category.Id)
+					c = category;
 
-				return p;
+				return c;
 			}).ToList();
 
 			FileUtils.SaveListToFile(categories);
@@ -56,10 +56,10 @@ namespace Api.Totem.Infrastructure.Repositories
 		{
 			var categories = FileUtils.GetListFromFile<Category>();
 
-			if (!categories.Any(p => p.Id == id))
+			if (!categories.Any(c => c.Id == id))
 				throw new ArgumentException($"No category was found with {nameof(id)} = {id}.");
 
-			categories = categories.Where(p => p.Id != id).ToList();
+			categories = categories.Where(c => c.Id != id).ToList();
 
 			FileUtils.SaveListToFile(categories);
 		}

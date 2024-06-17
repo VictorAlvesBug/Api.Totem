@@ -4,10 +4,10 @@ namespace Api.Totem.Domain.Interfaces.Services
 {
 	public interface ICategoryService
 	{
-		List<Category> List();
-		Category Get(string id);
-		Category Create(Category category);
-		Category Update(Category category);
+		List<CategoryDTO> List();
+		CategoryDTO Get(string id);
+		CategoryDTO Create(CategoryDTO category);
+		CategoryDTO Update(CategoryDTO category);
 		void Delete(string id);
 	}
 }

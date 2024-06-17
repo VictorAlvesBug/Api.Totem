@@ -5,7 +5,7 @@ namespace Api.Totem.Application.DTOs.SideDishSets
 {
 	public class SideDishSetToCreateDTO
 	{
-		[Required, Range(1, 5, ErrorMessage = $"The {nameof(Amount)} value must be between 1 and 5.")]
+		[Required, Range(1, int.MaxValue, ErrorMessage = $"The {nameof(Amount)} must have a positive non-zero value.")]
 		public int Amount { get; set; }
 
 		[Required]

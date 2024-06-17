@@ -1,4 +1,5 @@
-﻿using Api.Totem.Domain.Entities;
+﻿using Api.Totem.Application.DTOs.Categories;
+using Api.Totem.Domain.Entities;
 using Api.Totem.Domain.Interfaces.Repositories;
 using Api.Totem.Domain.Interfaces.Services;
 using Api.Totem.Infrastructure.Utils;
