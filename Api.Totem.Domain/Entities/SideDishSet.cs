@@ -6,6 +6,5 @@ namespace Api.Totem.Domain.Entities
 	{
 		public int Amount { get; set; }
 		public string CategoryId { get; set; }
-		public Category Category { get; set; }
     }
 }

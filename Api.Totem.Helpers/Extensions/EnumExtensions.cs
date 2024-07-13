@@ -5,7 +5,7 @@ namespace Api.Totem.Helpers.Extensions
 {
 	public static class EnumExtensions
 	{
-		public static IList<string> GetAllValues(
+		public static IEnumerable<string> GetAllValues(
 			Type enumType, 
 			Func<string, string, string>? buildTemplate = null) 
 		{

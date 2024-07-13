@@ -1,12 +1,13 @@
 ﻿using Api.Totem.Domain.Entities;
 using Api.Totem.Domain.Interfaces.Repositories;
+using Api.Totem.Helpers.Extensions;
 using Api.Totem.Infrastructure.Utils;
 
 namespace Api.Totem.Infrastructure.Repositories
 {
 	public class CategoryRepository : ICategoryRepository
 	{
-		public List<Category> List()
+		public IEnumerable<Category> List()
 		{
 			return FileUtils.GetListFromFile<Category>();
 		}
@@ -23,11 +24,7 @@ namespace Api.Totem.Infrastructure.Repositories
 		{
 			var categories = FileUtils.GetListFromFile<Category>();
 
-			category.Id = Guid.NewGuid().ToString();
-
-			categories.Add(category);
-
-			FileUtils.SaveListToFile(categories);
+			FileUtils.SaveListToFile(categories.Append(category));
 
 			return category;
 		}
@@ -36,18 +33,12 @@ namespace Api.Totem.Infrastructure.Repositories
 		{
 			var categories = FileUtils.GetListFromFile<Category>();
 
-			if (!categories.Any(c => c.Id == category.Id))
+			if (!categories.SafeAny(c => c.Id == category.Id))
 				throw new ArgumentException($"No category was found with {nameof(category.Id)} = {category.Id}.");
 
-			categories = categories.Select(c =>
-			{
-				if (c.Id == category.Id)
-					c = category;
+			categories = categories.Where(item => item.Id != category.Id);
 
-				return c;
-			}).ToList();
-
-			FileUtils.SaveListToFile(categories);
+			FileUtils.SaveListToFile(categories.Append(category));
 
 			return category;
 		}
@@ -56,10 +47,10 @@ namespace Api.Totem.Infrastructure.Repositories
 		{
 			var categories = FileUtils.GetListFromFile<Category>();
 
-			if (!categories.Any(c => c.Id == id))
+			if (!categories.SafeAny(c => c.Id == id))
 				throw new ArgumentException($"No category was found with {nameof(id)} = {id}.");
 
-			categories = categories.Where(c => c.Id != id).ToList();
+			categories = categories.Where(category => category.Id != id);
 
 			FileUtils.SaveListToFile(categories);
 		}

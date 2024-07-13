@@ -1,6 +1,7 @@
-﻿using Api.Totem.Domain.Entities;
+﻿using Api.Totem.Application.DTOs.Products;
+using Api.Totem.Application.Interfaces;
+using Api.Totem.Application.Mappers;
 using Api.Totem.Domain.Interfaces.Repositories;
-using Api.Totem.Domain.Interfaces.Services;
 
 namespace Api.Totem.Application.Services
 {
@@ -13,29 +14,49 @@ namespace Api.Totem.Application.Services
 			_productRepository = productRepository;
 		}
 
-		public List<Product> List()
+		public IEnumerable<ProductToShowDTO> List()
 		{
-			return _productRepository.List();
+			return _productRepository.List().MapToProductToShowDTO();
 		}
 
-		public Product Get(string id)
+		public ProductToShowDTO Get(string id)
 		{
-			return _productRepository.Get(id);
+			return _productRepository.Get(id).MapToProductToShowDTO();
 		}
 
-		public Product Create(Product product)
+		public ProductToShowDTO Create(ProductToCreateDTO productToCreateDTO)
 		{
-			return _productRepository.Create(product);
+			var product = productToCreateDTO.MapToProduct();
+
+			product.Id = Guid.NewGuid().ToString();
+
+			return _productRepository.Create(product).MapToProductToShowDTO();
 		}
 
-		public Product Update(Product product)
+		public ProductToShowDTO Update(string id, ProductToUpdateDTO productToUpdateDTO)
 		{
-			return _productRepository.Update(product);
+			var product = _productRepository.Get(id);
+
+			if(product == null)
+				throw new ArgumentException($"No product was found with {nameof(id)} = {id}.");
+
+			product.Name = productToUpdateDTO.Name;
+			product.Description = productToUpdateDTO.Description;
+			product.Price = productToUpdateDTO.Price;
+
+			return _productRepository.Update(product).MapToProductToShowDTO();
 		}
 
-		public Product UpdateAvailability(Product product)
+		public ProductToShowDTO UpdateAvailability(string id, ProductToUpdateAvailabilityDTO productToUpdateAvailabilityDTO)
 		{
-			return _productRepository.UpdateAvailability(product);
+			var product = _productRepository.Get(id);
+
+			if (product == null)
+				throw new ArgumentException($"No product was found with {nameof(id)} = {id}.");
+
+			product.Available = productToUpdateAvailabilityDTO.Available;
+
+			return _productRepository.Update(product).MapToProductToShowDTO();
 		}
 
 		public void Delete(string id)

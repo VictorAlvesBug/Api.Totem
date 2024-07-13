@@ -1,5 +1,4 @@
-﻿using Api.Totem.Domain.Enumerators;
-using Api.Totem.Helpers.Extensions;
+﻿using Api.Totem.Helpers.Extensions;
 using System.ComponentModel.DataAnnotations;
 
 namespace Api.Totem.Application.Validations

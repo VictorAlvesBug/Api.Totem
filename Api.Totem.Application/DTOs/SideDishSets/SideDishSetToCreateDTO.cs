@@ -10,11 +10,5 @@ namespace Api.Totem.Application.DTOs.SideDishSets
 
 		[Required]
 		public string CategoryId { get; set; }
-
-		public SideDishSet ToSideDishSet() => new SideDishSet
-		{
-			Amount = Amount,
-			CategoryId = CategoryId
-		};
 	}
 }

@@ -1,8 +1,6 @@
-﻿using Api.Totem.Domain.Entities;
-
-namespace Api.Totem.Application.DTOs.Products
+﻿namespace Api.Totem.Application.DTOs.Products
 {
-	public class ProductToShowDTO
+	public class ProductDTO
 	{
 		public string Id { get; set; }
 		public string Name { get; set; }

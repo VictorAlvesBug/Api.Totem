@@ -1,9 +1,8 @@
-using Api.Totem.Application.DTOs;
 using Api.Totem.Application.DTOs.Products;
-using Api.Totem.Domain.Interfaces.Services;
+using Api.Totem.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Totem.Application.Controllers
+namespace Api.Totem.Presentation.Controllers
 {
 	[ApiController]
 	[Route("Products")]
@@ -22,7 +21,7 @@ namespace Api.Totem.Application.Controllers
 		{
 			try
 			{
-				return Ok(_productService.List().Select(product => new ProductToShowDTO(product)));
+				return Ok(_productService.List());
 			}
 			catch (Exception ex)
 			{
@@ -36,9 +35,7 @@ namespace Api.Totem.Application.Controllers
 		{
 			try
 			{
-				return Ok(
-					new ProductToShowDTO(_productService.Get(id))
-				);
+				return Ok(_productService.Get(id));
 			}
 			catch (Exception ex)
 			{
@@ -48,13 +45,13 @@ namespace Api.Totem.Application.Controllers
 
 		[HttpPost]
 		[Route("")]
-		public ActionResult Create(ProductToCreateDTO productToCreate)
+		public ActionResult Create(ProductToCreateDTO productToCreateDTO)
 		{
 			try
 			{
 				return StatusCode(
 					StatusCodes.Status201Created,
-					new ProductToShowDTO(_productService.Create(productToCreate.ToProduct()))
+					_productService.Create(productToCreateDTO)
 				);
 			}
 			catch (Exception ex)
@@ -65,13 +62,13 @@ namespace Api.Totem.Application.Controllers
 
 		[HttpPatch]
 		[Route("{id}")]
-		public ActionResult Update(string id, ProductToUpdateDTO productToUpdate)
+		public ActionResult Update(string id, ProductToUpdateDTO productToUpdateDTO)
 		{
 			try
 			{
 				return StatusCode(
 					StatusCodes.Status200OK,
-					new ProductToShowDTO(_productService.Update(productToUpdate.ToProduct(id)))
+					_productService.Update(id, productToUpdateDTO)
 				);
 			}
 			catch (Exception ex)
@@ -82,13 +79,13 @@ namespace Api.Totem.Application.Controllers
 
 		[HttpPatch]
 		[Route("{id}/Availability")]
-		public ActionResult UpdateAvailability(string id, ProductToUpdateAvailabilityDTO productToUpdateAvailability)
+		public ActionResult UpdateAvailability(string id, ProductToUpdateAvailabilityDTO productToUpdateAvailabilityDTO)
 		{
 			try
 			{
 				return StatusCode(
 					StatusCodes.Status200OK,
-					new ProductToShowDTO(_productService.UpdateAvailability(productToUpdateAvailability.ToProduct(id)))
+					_productService.UpdateAvailability(id, productToUpdateAvailabilityDTO)
 				);
 			}
 			catch (Exception ex)

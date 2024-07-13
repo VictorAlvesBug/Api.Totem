@@ -1,12 +1,10 @@
-using Api.Totem.Application.DTOs;
 using Api.Totem.Application.DTOs.Categories;
-using Api.Totem.Domain.Interfaces.Services;
+using Api.Totem.Application.Interfaces;
 using Api.Totem.Helpers.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.ComponentModel.DataAnnotations;
 
-namespace Api.Totem.Application.Controllers
+namespace Api.Totem.Presentation.Controllers
 {
 	[ApiController]
 	[Route("Categories")]
@@ -25,7 +23,7 @@ namespace Api.Totem.Application.Controllers
 		{
 			try
 			{
-				return Ok(_categoryService.List().Select(category => new CategoryToShowDTO(category)));
+				return Ok(_categoryService.List());
 			}
 			catch (Exception ex)
 			{
@@ -39,9 +37,7 @@ namespace Api.Totem.Application.Controllers
 		{
 			try
 			{
-				return Ok(
-					new CategoryToShowDTO(_categoryService.Get(id))
-				);
+				return Ok(_categoryService.Get(id));
 			}
 			catch (Exception ex)
 			{
@@ -51,15 +47,15 @@ namespace Api.Totem.Application.Controllers
 
 		[HttpPost]
 		[Route("")]
-		public ActionResult Create(CategoryToCreateDTO categoryToCreate)
+		public ActionResult Create(CategoryToCreateDTO categoryToCreateDTO)
 		{
 			try
 			{
-				categoryToCreate.Validate();
+				categoryToCreateDTO.Validate();
 
 				  return StatusCode(
 					StatusCodes.Status201Created,
-					new CategoryToShowDTO(_categoryService.Create(categoryToCreate.ToCategoryDto()))
+					_categoryService.Create(categoryToCreateDTO)
 				);
 			}
 			catch (Exception ex)
@@ -70,13 +66,13 @@ namespace Api.Totem.Application.Controllers
 
 		[HttpPatch]
 		[Route("{id}")]
-		public ActionResult Update(string id, CategoryToUpdateDTO categoryToUpdate)
+		public ActionResult Update(string id, CategoryToUpdateDTO categoryToUpdateDTO)
 		{
 			try
 			{
 				return StatusCode(
 					StatusCodes.Status200OK,
-					new CategoryToShowDTO(_categoryService.Update(categoryToUpdate.ToCategoryDto(id)))
+					_categoryService.Update(id, categoryToUpdateDTO)
 				);
 			}
 			catch (Exception ex)

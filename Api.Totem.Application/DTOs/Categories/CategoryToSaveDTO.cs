@@ -1,6 +1,6 @@
 ﻿using Api.Totem.Application.DTOs.SideDishSets;
+using Api.Totem.Application.Mappers;
 using Api.Totem.Application.Validations;
-using Api.Totem.Domain.Entities;
 using Api.Totem.Domain.Enumerators;
 using Api.Totem.Helpers.DataAnnotations.Attributes;
 using Api.Totem.Helpers.Extensions;
@@ -20,10 +20,10 @@ namespace Api.Totem.Application.DTOs.Categories
 		public ComplementType ComplementType { get; set; }
 
 		[WhenRequiredErrorMessage($"Categories with this {nameof(ComplementType)} must have a non-empty {nameof(SideDishSets)} list.")]
-		public List<SideDishSetToCreateDTO>? SideDishSets { get; set; }
+		public IEnumerable<SideDishSetToCreateDTO>? SideDishSets { get; set; }
 
 		[WhenRequiredErrorMessage($"Categories with this {nameof(ComplementType)} must have a non-empty {nameof(ComboItemCategoryIds)} list.")]
-		public List<string>? ComboItemCategoryIds { get; set; }
+		public IEnumerable<string>? ComboItemCategoryIds { get; set; }
 
 		[Range(0, double.MaxValue, ErrorMessage = $"The {nameof(ComboAdditionalPrice)} must have a positive value."), 
 		WhenRequiredErrorMessage($"Categories with this {nameof(ComplementType)} must have a {nameof(ComboAdditionalPrice)} value.")]
@@ -52,19 +52,19 @@ namespace Api.Totem.Application.DTOs.Categories
 			}
 		}
 
-		public void FillComplementFields(CategoryDTO categoryDto)
+		public void FillComplementFields(CategoryDTO categoryDTO)
 		{
-			switch (categoryDto.ComplementType)
+			switch (categoryDTO.ComplementType)
 			{
 				case ComplementType.SideDishes:
-					categoryDto.SideDishSets = SideDishSets?.Select(sideDishSet => sideDishSet.ToSideDishSet()).ToList()
+					categoryDTO.SideDishSets = SideDishSets?.MapToSideDishSetDTO()
 						?? throw new Exception(this.GetErrorMessageFor(nameof(SideDishSets)));
 					break;
 
 				case ComplementType.OptionalCombo:
-					categoryDto.ComboItemCategoryIds = ComboItemCategoryIds
+					categoryDTO.ComboItemCategoryIds = ComboItemCategoryIds
 						?? throw new ArgumentNullException(this.GetErrorMessageFor(nameof(ComboItemCategoryIds)));
-					categoryDto.ComboAdditionalPrice = ComboAdditionalPrice
+					categoryDTO.ComboAdditionalPrice = ComboAdditionalPrice
 						?? throw new ArgumentNullException(this.GetErrorMessageFor(nameof(ComboAdditionalPrice)));
 					break;
 			}

@@ -1,8 +1,10 @@
 ﻿using Api.Totem.Application.DTOs.Categories;
+using Api.Totem.Application.DTOs.Products;
+using Api.Totem.Application.Interfaces;
+using Api.Totem.Application.Mappers;
 using Api.Totem.Domain.Entities;
 using Api.Totem.Domain.Interfaces.Repositories;
-using Api.Totem.Domain.Interfaces.Services;
-using Api.Totem.Infrastructure.Utils;
+using Api.Totem.Helpers.Extensions;
 
 namespace Api.Totem.Application.Services
 {
@@ -19,40 +21,58 @@ namespace Api.Totem.Application.Services
 			_productRepository = productRepository;
 		}
 
-		public List<Category> List()
+		public IEnumerable<CategoryToShowDTO> List()
 		{
-			var categories = _categoryRepository.List();
+			var categoriesDTO = _categoryRepository.List().MapToCategoryDTO();
 
-			FillAdditionalProperties(categories);
+			FillAdditionalProperties(categoriesDTO);
 
-			return categories;
+			return categoriesDTO.MapToCategoryToShowDTO();
 		}
 
-		public Category Get(string id)
+		public CategoryToShowDTO Get(string id)
+		{
+			var categoryDTO = _categoryRepository.Get(id).MapToCategoryDTO();
+
+			FillAdditionalProperties(categoryDTO);
+
+			return categoryDTO.MapToCategoryToShowDTO();
+		}
+
+		public CategoryToShowDTO Create(CategoryToCreateDTO categoryToCreateDTO)
+		{
+			var category = categoryToCreateDTO.MapToCategory();
+
+			category.Id = Guid.NewGuid().ToString();
+			category.Available = true;
+
+			var categoryDTO = _categoryRepository.Create(category).MapToCategoryDTO();
+
+			FillAdditionalProperties(categoryDTO);
+
+			return categoryDTO.MapToCategoryToShowDTO();
+		}
+
+		public CategoryToShowDTO Update(string id, CategoryToUpdateDTO categoryToUpdateDTO)
 		{
 			var category = _categoryRepository.Get(id);
 
-			FillAdditionalProperties(category);
+			if (category == null)
+				throw new ArgumentException($"No category was found with {nameof(id)} = {id}.");
 
-			return category;
-		}
 
-		public Category Create(Category category)
-		{
-			category = _categoryRepository.Create(category);
+			category.CategoryType = categoryToUpdateDTO.CategoryType;
+			category.Name = categoryToUpdateDTO.Name;
+			category.ComplementType = categoryToUpdateDTO.ComplementType;
+			category.SideDishSets = categoryToUpdateDTO.SideDishSets?.MapToSideDishSet();
+			category.ComboItemCategoryIds = categoryToUpdateDTO.ComboItemCategoryIds;
+			category.ComboAdditionalPrice = categoryToUpdateDTO.ComboAdditionalPrice;
 
-			FillAdditionalProperties(category);
+			var categoryDTO = _categoryRepository.Update(category).MapToCategoryDTO();
 
-			return category;
-		}
+			FillAdditionalProperties(categoryDTO);
 
-		public Category Update(Category category)
-		{
-			category = _categoryRepository.Update(category);
-
-			FillAdditionalProperties(category);
-
-			return category;
+			return categoryDTO.MapToCategoryToShowDTO();
 		}
 
 		public void Delete(string id)
@@ -60,44 +80,45 @@ namespace Api.Totem.Application.Services
 			_categoryRepository.Delete(id);
 		}
 
-		public void FillAdditionalProperties(
-			Category category,
-			List<Product>? allProducts = null,
-			List<Category>? allCategories = null)
+		private void FillAdditionalProperties(
+			CategoryDTO categoryDTO,
+			IEnumerable<ProductDTO>? allProductsDTO = null,
+			IEnumerable<CategoryDTO>? allCategoriesDTO = null)
 		{
-			allProducts ??= _productRepository.List();
-			allCategories ??= _categoryRepository.List();
+			allProductsDTO ??= _productRepository.List().ConvertTo<ProductDTO>();
+			allCategoriesDTO ??= _categoryRepository.List().ConvertTo<CategoryDTO>();
 
-			if (category.ProductIds is not null)
+			if (categoryDTO.ProductIds is not null)
 			{
-				category.Products = allProducts
-					.Where(product => category.ProductIds.Contains(product.Id))
+				categoryDTO.Products = allProductsDTO
+					.Where(productDTO => categoryDTO.ProductIds.Contains(productDTO.Id))
 					.ToList();
 			}
 
-			if (category.SideDishSets is not null)
+			if (categoryDTO.SideDishSets is not null)
 			{
-				category.SideDishSets.ForEach(sideDishSet =>
+				categoryDTO.SideDishSets.ToList().ForEach(sideDishSetDTO =>
 				{
-					sideDishSet.Category = allCategories.FirstOrDefault(cat => cat.Id == sideDishSet.CategoryId)
-					 ?? throw new Exception($"No {nameof(category)} was found with {nameof(sideDishSet.CategoryId)} = '{sideDishSet.CategoryId}'");
+					sideDishSetDTO.Category = allCategoriesDTO.FirstOrDefault(item => item.Id == sideDishSetDTO.CategoryId)
+					 ?? throw new Exception($"No {nameof(categoryDTO)} was found with {nameof(sideDishSetDTO.CategoryId)} = '{sideDishSetDTO.CategoryId}'");
 				});
 			}
 
-			if (category.ComboItemCategoryIds is not null)
+			if (categoryDTO.ComboItemCategoryIds is not null)
 			{
-				category.ComboItemCategories = allCategories
-					.Where(cat => category.ComboItemCategoryIds.Contains(cat.Id))
+				categoryDTO.ComboItemCategories = allCategoriesDTO
+					.Where(item => categoryDTO.ComboItemCategoryIds.Contains(item.Id))
 					.ToList();
 			}
 		}
 
-		public void FillAdditionalProperties(List<Category> categories)
+		private void FillAdditionalProperties(IEnumerable<CategoryDTO> categoriesDTO)
 		{
-			var allProducts = _productRepository.List();
-			var allCategories = _categoryRepository.List();
+			var allProductsDTO = _productRepository.List().ConvertTo<ProductDTO>();
+			var allCategoriesDTO = _categoryRepository.List().ConvertTo<CategoryDTO>();
 
-			categories.ForEach(category => FillAdditionalProperties(category, allProducts, allCategories));
+			categoriesDTO.ToList().ForEach(category => 
+				FillAdditionalProperties(category, allProductsDTO, allCategoriesDTO));
 		}
 	}
 }

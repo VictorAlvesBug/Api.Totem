@@ -1,6 +1,4 @@
-﻿using Api.Totem.Domain.Enumerators;
-
-namespace Api.Totem.Domain.Entities
+﻿namespace Api.Totem.Domain.Entities
 {
 	public class Product
 	{

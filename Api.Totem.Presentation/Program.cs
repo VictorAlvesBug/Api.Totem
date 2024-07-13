@@ -1,6 +1,6 @@
+using Api.Totem.Application.Interfaces;
 using Api.Totem.Application.Services;
 using Api.Totem.Domain.Interfaces.Repositories;
-using Api.Totem.Domain.Interfaces.Services;
 using Api.Totem.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);

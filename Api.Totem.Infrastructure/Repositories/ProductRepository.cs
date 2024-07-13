@@ -1,16 +1,13 @@
-﻿using Api.Totem.Domain.Interfaces.Repositories;
-using Api.Totem.Infrastructure.Models;
-using Api.Totem.Domain.Entities;
-using Api.Totem.Domain.Enumerators;
+﻿using Api.Totem.Domain.Entities;
+using Api.Totem.Domain.Interfaces.Repositories;
 using Api.Totem.Helpers.Extensions;
-using Newtonsoft.Json;
 using Api.Totem.Infrastructure.Utils;
 
 namespace Api.Totem.Infrastructure.Repositories
 {
 	public class ProductRepository : IProductRepository
 	{
-		public List<Product> List()
+		public IEnumerable<Product> List()
 		{
 			return FileUtils.GetListFromFile<Product>();
 		}
@@ -27,11 +24,7 @@ namespace Api.Totem.Infrastructure.Repositories
 		{
 			var products = FileUtils.GetListFromFile<Product>();
 
-			product.Id = Guid.NewGuid().ToString();
-
-			products.Add(product);
-
-			FileUtils.SaveListToFile(products);
+			FileUtils.SaveListToFile(products.Append(product));
 
 			return product;
 		}
@@ -40,41 +33,12 @@ namespace Api.Totem.Infrastructure.Repositories
 		{
 			var products = FileUtils.GetListFromFile<Product>();
 
-			if (!products.Any(p => p.Id == product.Id))
+			if(!products.SafeAny(item => item.Id == product.Id))
 				throw new ArgumentException($"No product was found with {nameof(product.Id)} = {product.Id}.");
 
-			products = products.Select(p =>
-			{
-				if (p.Id == product.Id)
-					p = product;
+			products = products.Where(item => item.Id != product.Id);
 
-				return p;
-			}).ToList();
-
-			FileUtils.SaveListToFile(products);
-
-			return product;
-		}
-
-		public Product UpdateAvailability(Product product)
-		{
-			var products = FileUtils.GetListFromFile<Product>();
-
-			if (!products.Any(p => p.Id == product.Id))
-				throw new ArgumentException($"No product was found with {nameof(product.Id)} = {product.Id}.");
-
-			products = products.Select(p =>
-			{
-				if (p.Id == product.Id)
-				{
-					p.Available = product.Available;
-					product = p;
-				}
-
-				return p;
-			}).ToList();
-
-			FileUtils.SaveListToFile(products);
+			FileUtils.SaveListToFile(products.Append(product));
 
 			return product;
 		}
@@ -83,10 +47,10 @@ namespace Api.Totem.Infrastructure.Repositories
 		{
 			var products = FileUtils.GetListFromFile<Product>();
 
-			if (!products.Any(p => p.Id == id))
+			if (!products.SafeAny(product => product.Id == id))
 				throw new ArgumentException($"No product was found with {nameof(id)} = {id}.");
 
-			products = products.Where(p => p.Id != id).ToList();
+			products = products.Where(product => product.Id != id);
 
 			FileUtils.SaveListToFile(products);
 		}

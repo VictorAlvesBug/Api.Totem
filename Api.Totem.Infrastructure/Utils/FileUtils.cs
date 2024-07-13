@@ -8,7 +8,7 @@ namespace Api.Totem.Infrastructure.Utils
 	{
 		private static readonly string _dataFolderPath = @"C:\Users\victo\OneDrive\Desktop\Pessoal\Projetos\Api.Totem\Api.Totem.Data";
 
-		public static List<TData> GetListFromFile<TData>()
+		public static IEnumerable<TData> GetListFromFile<TData>()
 		{
 			string dataTypeName = typeof(TData).Name;
 			var filePath = GetFilePath(dataTypeName);
@@ -17,7 +17,7 @@ namespace Api.Totem.Infrastructure.Utils
 					?? throw new ArgumentException($"File '{filePath}' could not be converted to '{nameof(Response<TData>)}' type.");
 		}
 
-		public static void SaveListToFile<TData>(List<TData> list)
+		public static void SaveListToFile<TData>(IEnumerable<TData> list)
 		{
 			string dataTypeName = typeof(TData).Name;
 			var filePath = GetFilePath(dataTypeName);

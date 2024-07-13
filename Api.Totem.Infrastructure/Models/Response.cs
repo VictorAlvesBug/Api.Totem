@@ -2,14 +2,14 @@
 {
 	public class Response<TData>
 	{
-        public List<TData> Data { get; set; }
+        public IEnumerable<TData> Data { get; set; }
 
         public Response()
         {
             
         }
 
-		public Response(List<TData> data)
+		public Response(IEnumerable<TData> data)
 		{
 			Data = data;
 		}
