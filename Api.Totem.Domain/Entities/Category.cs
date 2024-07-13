@@ -2,9 +2,8 @@
 
 namespace Api.Totem.Domain.Entities
 {
-	public class Category
+	public class Category : BaseEntity
 	{
-		public string Id { get; set; }
 		public CategoryType CategoryType { get; set; }
 		public string Name { get; set; }
 		public IEnumerable<string> ProductIds { get; set; }

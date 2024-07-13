@@ -2,12 +2,7 @@
 
 namespace Api.Totem.Domain.Interfaces.Repositories
 {
-	public interface ICategoryRepository
+	public interface ICategoryRepository : IBaseRepository<Category>
 	{
-		IEnumerable<Category> List();
-		Category Get(string id);
-		Category Create(Category category);
-		Category Update(Category category);
-		void Delete(string id);
 	}
 }
