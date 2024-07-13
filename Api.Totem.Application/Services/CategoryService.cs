@@ -44,7 +44,6 @@ namespace Api.Totem.Application.Services
 			var category = categoryToCreateDTO.MapToCategory();
 
 			category.Id = Guid.NewGuid().ToString();
-			category.Available = true;
 
 			var categoryDTO = _categoryRepository.Create(category).MapToCategoryDTO();
 

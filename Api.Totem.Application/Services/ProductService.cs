@@ -29,6 +29,7 @@ namespace Api.Totem.Application.Services
 			var product = productToCreateDTO.MapToProduct();
 
 			product.Id = Guid.NewGuid().ToString();
+			product.Available = true;
 
 			return _productRepository.Create(product).MapToProductToShowDTO();
 		}
