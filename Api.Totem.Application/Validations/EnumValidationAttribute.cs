@@ -24,9 +24,9 @@ namespace Api.Totem.Application.Validations
 				return ValidationResult.Success;
 			}
 
-			if(!Enum.IsDefined(_enumType, value))
+			if (!Enum.IsDefined(_enumType, value))
 			{
-				var strValidValues = 
+				var strValidValues =
 					EnumExtensions.GetAllValues(_enumType, (name, id) => $"{id} - '{name}'")
 					.JoinThis(", ");
 

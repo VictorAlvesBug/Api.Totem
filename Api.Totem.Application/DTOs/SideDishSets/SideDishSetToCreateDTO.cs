@@ -1,5 +1,4 @@
-﻿using Api.Totem.Domain.Entities;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Api.Totem.Application.DTOs.SideDishSets
 {

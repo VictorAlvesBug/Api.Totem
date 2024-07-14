@@ -11,7 +11,7 @@ namespace Api.Totem.Helpers.Extensions
 
 			return JsonConvert.SerializeObject(obj);
 		}
-			
+
 
 		public static TReturn DeserializeFromJson<TReturn>(this string json)
 		{

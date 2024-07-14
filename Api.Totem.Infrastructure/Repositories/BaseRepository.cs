@@ -7,9 +7,9 @@ namespace Api.Totem.Infrastructure.Repositories
 {
 	public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : BaseEntity
 	{
-        private readonly string _entityName;
+		private readonly string _entityName;
 
-        public BaseRepository()
+		public BaseRepository()
 		{
 			_entityName = typeof(TEntity).Name.ToCamelCase();
 		}

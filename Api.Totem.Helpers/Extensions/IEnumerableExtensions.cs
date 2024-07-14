@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Api.Totem.Helpers.Extensions
+﻿namespace Api.Totem.Helpers.Extensions
 {
 	public static class IEnumerableExtensions
 	{

@@ -1,13 +1,10 @@
-﻿using System.Linq.Expressions;
-using System.Xml.Linq;
-
-namespace Api.Totem.Helpers.Extensions
+﻿namespace Api.Totem.Helpers.Extensions
 {
 	public static class EnumExtensions
 	{
 		public static IEnumerable<string> GetAllValues(
-			Type enumType, 
-			Func<string, string, string>? buildTemplate = null) 
+			Type enumType,
+			Func<string, string, string>? buildTemplate = null)
 		{
 			buildTemplate ??= (string name, string id) => $"{name}";
 
@@ -25,7 +22,7 @@ namespace Api.Totem.Helpers.Extensions
 					return buildTemplate(name, id);
 				}
 				).ToList();
-				
+
 		}
 	}
 }

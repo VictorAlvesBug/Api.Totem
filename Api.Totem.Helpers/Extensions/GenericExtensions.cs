@@ -1,9 +1,4 @@
 ﻿using Api.Totem.Helpers.DataAnnotations.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Api.Totem.Helpers.Extensions
 {
@@ -15,7 +10,7 @@ namespace Api.Totem.Helpers.Extensions
 
 			var property = typeof(TObject).GetProperty(propertyName);
 
-			if(property == null) 
+			if (property == null)
 				return defaultErrorMessage;
 
 			var errorMessageAttribute = property

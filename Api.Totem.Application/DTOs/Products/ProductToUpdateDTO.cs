@@ -1,6 +1,4 @@
-﻿using Api.Totem.Domain.Entities;
-
-namespace Api.Totem.Application.DTOs.Products
+﻿namespace Api.Totem.Application.DTOs.Products
 {
 	public class ProductToUpdateDTO
 	{

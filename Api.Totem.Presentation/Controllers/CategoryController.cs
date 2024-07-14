@@ -53,10 +53,10 @@ namespace Api.Totem.Presentation.Controllers
 			{
 				categoryToCreateDTO.Validate();
 
-				  return StatusCode(
-					StatusCodes.Status201Created,
-					_categoryService.Create(categoryToCreateDTO)
-				);
+				return StatusCode(
+				  StatusCodes.Status201Created,
+				  _categoryService.Create(categoryToCreateDTO)
+			  );
 			}
 			catch (Exception ex)
 			{
@@ -89,6 +89,40 @@ namespace Api.Totem.Presentation.Controllers
 			{
 				_categoryService.Delete(id);
 				return StatusCode(StatusCodes.Status204NoContent);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
+		[HttpPost]
+		[Route("{id}/Products")]
+		public ActionResult AddProductsToCategory(string id, CategoryProductsToAddDTO categoryProductsToAddDTO)
+		{
+			try
+			{
+				return StatusCode(
+					StatusCodes.Status200OK,
+					_categoryService.AddProducts(id, categoryProductsToAddDTO)
+				);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
+		[HttpDelete]
+		[Route("{id}/Products")]
+		public ActionResult RemoveProductsFromCategory(string id, CategoryProductsToRemoveDTO categoryProductsToRemoveDTO)
+		{
+			try
+			{
+				return StatusCode(
+					StatusCodes.Status200OK,
+					_categoryService.RemoveProducts(id, categoryProductsToRemoveDTO)
+				);
 			}
 			catch (Exception ex)
 			{

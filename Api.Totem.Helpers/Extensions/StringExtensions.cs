@@ -4,7 +4,7 @@
 	{
 		public static string ToCamelCase(this string value)
 		{
-			if(string.IsNullOrEmpty(value))
+			if (string.IsNullOrEmpty(value))
 				return value;
 
 			string first = value[0].ToString();

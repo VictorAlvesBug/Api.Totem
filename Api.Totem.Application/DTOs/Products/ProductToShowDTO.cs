@@ -1,6 +1,4 @@
-﻿using Api.Totem.Domain.Entities;
-
-namespace Api.Totem.Application.DTOs.Products
+﻿namespace Api.Totem.Application.DTOs.Products
 {
 	public class ProductToShowDTO
 	{
@@ -9,5 +7,5 @@ namespace Api.Totem.Application.DTOs.Products
 		public string Description { get; set; }
 		public decimal Price { get; set; }
 		public bool Available { get; set; }
-    }
+	}
 }

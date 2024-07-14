@@ -56,10 +56,6 @@ namespace Api.Totem.Application.Services
 		{
 			var category = _categoryRepository.Get(id);
 
-			if (category == null)
-				throw new ArgumentException($"No category was found with {nameof(id)} = {id}.");
-
-
 			category.CategoryType = categoryToUpdateDTO.CategoryType;
 			category.Name = categoryToUpdateDTO.Name;
 			category.ComplementType = categoryToUpdateDTO.ComplementType;
@@ -77,6 +73,41 @@ namespace Api.Totem.Application.Services
 		public void Delete(string id)
 		{
 			_categoryRepository.Delete(id);
+		}
+
+		public CategoryToShowDTO AddProducts(string id, CategoryProductsToAddDTO categoryProductsToAddDTO)
+		{
+			var category = _categoryRepository.Get(id);
+
+            foreach (var productId in categoryProductsToAddDTO.ProductIds)
+                if(_productRepository.Get(productId) == null)
+					throw new ArgumentException($"No product was found with {nameof(productId)} = {productId}.");
+
+			category.ProductIds = categoryProductsToAddDTO.ProductIds;
+
+			var categoryDTO = _categoryRepository.Update(category).MapToCategoryDTO();
+
+			FillAdditionalProperties(categoryDTO);
+
+			return categoryDTO.MapToCategoryToShowDTO();
+		}
+
+		public CategoryToShowDTO RemoveProducts(string id, CategoryProductsToRemoveDTO categoryProductsToRemoveDTO)
+		{
+			var category = _categoryRepository.Get(id);
+
+			foreach (var productId in categoryProductsToRemoveDTO.ProductIds)
+				if (_productRepository.Get(productId) == null)
+					throw new ArgumentException($"No product was found with {nameof(productId)} = {productId}.");
+
+			category.ProductIds = category.ProductIds
+				.Where(productId => !categoryProductsToRemoveDTO.ProductIds.Contains(productId));
+
+			var categoryDTO = _categoryRepository.Update(category).MapToCategoryDTO();
+
+			FillAdditionalProperties(categoryDTO);
+
+			return categoryDTO.MapToCategoryToShowDTO();
 		}
 
 		private void FillAdditionalProperties(
@@ -116,7 +147,7 @@ namespace Api.Totem.Application.Services
 			var allProductsDTO = _productRepository.List().ConvertTo<ProductDTO>();
 			var allCategoriesDTO = _categoryRepository.List().ConvertTo<CategoryDTO>();
 
-			categoriesDTO.ToList().ForEach(category => 
+			categoriesDTO.ToList().ForEach(category =>
 				FillAdditionalProperties(category, allProductsDTO, allCategoriesDTO));
 		}
 	}

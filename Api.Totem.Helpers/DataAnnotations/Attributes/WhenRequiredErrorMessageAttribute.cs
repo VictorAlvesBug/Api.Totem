@@ -2,11 +2,11 @@
 {
 	public sealed class WhenRequiredErrorMessageAttribute : Attribute
 	{
-        public string ErrorMessage { get; }
+		public string ErrorMessage { get; }
 
-        public WhenRequiredErrorMessageAttribute(string errorMessage)
-        {
-            ErrorMessage = errorMessage;
-        }
-    }
+		public WhenRequiredErrorMessageAttribute(string errorMessage)
+		{
+			ErrorMessage = errorMessage;
+		}
+	}
 }

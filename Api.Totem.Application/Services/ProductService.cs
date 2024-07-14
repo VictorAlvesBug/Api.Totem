@@ -38,9 +38,6 @@ namespace Api.Totem.Application.Services
 		{
 			var product = _productRepository.Get(id);
 
-			if(product == null)
-				throw new ArgumentException($"No product was found with {nameof(id)} = {id}.");
-
 			product.Name = productToUpdateDTO.Name;
 			product.Description = productToUpdateDTO.Description;
 			product.Price = productToUpdateDTO.Price;
@@ -51,9 +48,6 @@ namespace Api.Totem.Application.Services
 		public ProductToShowDTO UpdateAvailability(string id, ProductToUpdateAvailabilityDTO productToUpdateAvailabilityDTO)
 		{
 			var product = _productRepository.Get(id);
-
-			if (product == null)
-				throw new ArgumentException($"No product was found with {nameof(id)} = {id}.");
 
 			product.Available = productToUpdateAvailabilityDTO.Available;
 

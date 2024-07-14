@@ -25,11 +25,11 @@ namespace Api.Totem.Application.DTOs.Categories
 		[WhenRequiredErrorMessage($"Categories with this {nameof(ComplementType)} must have a non-empty {nameof(ComboItemCategoryIds)} list.")]
 		public IEnumerable<string>? ComboItemCategoryIds { get; set; }
 
-		[Range(0, double.MaxValue, ErrorMessage = $"The {nameof(ComboAdditionalPrice)} must have a positive value."), 
+		[Range(0, double.MaxValue, ErrorMessage = $"The {nameof(ComboAdditionalPrice)} must have a positive value."),
 		WhenRequiredErrorMessage($"Categories with this {nameof(ComplementType)} must have a {nameof(ComboAdditionalPrice)} value.")]
 		public decimal? ComboAdditionalPrice { get; set; }
 
-        public void Validate()
+		public void Validate()
 		{
 			switch (ComplementType)
 			{
