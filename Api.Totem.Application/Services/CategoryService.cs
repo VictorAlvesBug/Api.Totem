@@ -24,18 +24,14 @@ namespace Api.Totem.Application.Services
 		public IEnumerable<CategoryToShowDTO> List()
 		{
 			var categoriesDTO = _categoryRepository.List().MapToCategoryDTO();
-
-			FillAdditionalProperties(categoriesDTO);
-
+			FillAdditionalPropertiesToShow(categoriesDTO);
 			return categoriesDTO.MapToCategoryToShowDTO();
 		}
 
 		public CategoryToShowDTO Get(string id)
 		{
 			var categoryDTO = _categoryRepository.Get(id).MapToCategoryDTO();
-
-			FillAdditionalProperties(categoryDTO);
-
+			FillAdditionalPropertiesToShow(categoryDTO);
 			return categoryDTO.MapToCategoryToShowDTO();
 		}
 
@@ -46,9 +42,7 @@ namespace Api.Totem.Application.Services
 			category.Id = Guid.NewGuid().ToString();
 
 			var categoryDTO = _categoryRepository.Create(category).MapToCategoryDTO();
-
-			FillAdditionalProperties(categoryDTO);
-
+			FillAdditionalPropertiesToShow(categoryDTO);
 			return categoryDTO.MapToCategoryToShowDTO();
 		}
 
@@ -64,9 +58,7 @@ namespace Api.Totem.Application.Services
 			category.ComboAdditionalPrice = categoryToUpdateDTO.ComboAdditionalPrice;
 
 			var categoryDTO = _categoryRepository.Update(category).MapToCategoryDTO();
-
-			FillAdditionalProperties(categoryDTO);
-
+			FillAdditionalPropertiesToShow(categoryDTO);
 			return categoryDTO.MapToCategoryToShowDTO();
 		}
 
@@ -86,9 +78,7 @@ namespace Api.Totem.Application.Services
 			category.ProductIds = categoryProductsToAddDTO.ProductIds;
 
 			var categoryDTO = _categoryRepository.Update(category).MapToCategoryDTO();
-
-			FillAdditionalProperties(categoryDTO);
-
+			FillAdditionalPropertiesToShow(categoryDTO);
 			return categoryDTO.MapToCategoryToShowDTO();
 		}
 
@@ -104,13 +94,11 @@ namespace Api.Totem.Application.Services
 				.Where(productId => !categoryProductsToRemoveDTO.ProductIds.Contains(productId));
 
 			var categoryDTO = _categoryRepository.Update(category).MapToCategoryDTO();
-
-			FillAdditionalProperties(categoryDTO);
-
+			FillAdditionalPropertiesToShow(categoryDTO);
 			return categoryDTO.MapToCategoryToShowDTO();
 		}
 
-		private void FillAdditionalProperties(
+		private void FillAdditionalPropertiesToShow(
 			CategoryDTO categoryDTO,
 			IEnumerable<ProductDTO>? allProductsDTO = null,
 			IEnumerable<CategoryDTO>? allCategoriesDTO = null)
@@ -142,13 +130,13 @@ namespace Api.Totem.Application.Services
 			}
 		}
 
-		private void FillAdditionalProperties(IEnumerable<CategoryDTO> categoriesDTO)
+		private void FillAdditionalPropertiesToShow(IEnumerable<CategoryDTO> categoriesDTO)
 		{
 			var allProductsDTO = _productRepository.List().ConvertTo<ProductDTO>();
 			var allCategoriesDTO = _categoryRepository.List().ConvertTo<CategoryDTO>();
 
 			categoriesDTO.ToList().ForEach(category =>
-				FillAdditionalProperties(category, allProductsDTO, allCategoriesDTO));
+				FillAdditionalPropertiesToShow(category, allProductsDTO, allCategoriesDTO));
 		}
 	}
 }

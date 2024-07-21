@@ -6,8 +6,8 @@ namespace Api.Totem.Domain.Interfaces.Repositories
 	{
 		IEnumerable<TEntity> List();
 		TEntity Get(string id);
-		TEntity Create(TEntity product);
-		TEntity Update(TEntity product);
+		TEntity Create(TEntity entity);
+		TEntity Update(TEntity entity);
 		void Delete(string id);
 	}
 }
