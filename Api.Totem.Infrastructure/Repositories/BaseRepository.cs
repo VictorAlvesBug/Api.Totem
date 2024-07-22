@@ -19,12 +19,23 @@ namespace Api.Totem.Infrastructure.Repositories
 			return FileUtils.GetListFromFile<TEntity>();
 		}
 
-		public TEntity Get(string id)
+		public bool TryGet(string id, out TEntity entity)
 		{
 			var entities = FileUtils.GetListFromFile<TEntity>();
 
-			return entities.FirstOrDefault(item => item.Id == id)
-				?? throw new ArgumentException($"No {_entityName} was found with {nameof(id)} = {id}.");
+			entity = entities.FirstOrDefault(item => item.Id == id);
+
+			return entity != null;
+		}
+
+		public TEntity Get(string id)
+		{
+			var exists = TryGet(id, out TEntity entity);
+
+			if(exists)
+				return entity;
+
+			throw new ArgumentException($"No {_entityName} was found with {nameof(BaseEntity.Id)} = {id}.");
 		}
 
 		public TEntity Create(TEntity entity)
@@ -41,7 +52,7 @@ namespace Api.Totem.Infrastructure.Repositories
 			var entities = FileUtils.GetListFromFile<TEntity>();
 
 			if (!entities.SafeAny(item => item.Id == entity.Id))
-				throw new ArgumentException($"No {_entityName} was found with {nameof(entity.Id)} = {entity.Id}.");
+				throw new ArgumentException($"No {_entityName} was found with {nameof(BaseEntity.Id)} = {entity.Id}.");
 
 			entities = entities.Where(item => item.Id != entity.Id);
 
@@ -55,7 +66,7 @@ namespace Api.Totem.Infrastructure.Repositories
 			var entities = FileUtils.GetListFromFile<TEntity>();
 
 			if (!entities.SafeAny(item => item.Id == id))
-				throw new ArgumentException($"No {_entityName} was found with {nameof(id)} = {id}.");
+				throw new ArgumentException($"No {_entityName} was found with {nameof(BaseEntity.Id)} = {id}.");
 
 			entities = entities.Where(entity => entity.Id != id);
 

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace Api.Totem.Presentation.Controllers
 {
 	[ApiController]
-	[Route("Categories")]
+	[Route("categories")]
 	public class CategoryController : ControllerBase
 	{
 		private readonly ICategoryService _categoryService;
@@ -64,7 +64,7 @@ namespace Api.Totem.Presentation.Controllers
 			}
 		}
 
-		[HttpPatch]
+		[HttpPut]
 		[Route("{id}")]
 		public ActionResult Update(string id, CategoryToUpdateDTO categoryToUpdateDTO)
 		{
@@ -97,7 +97,7 @@ namespace Api.Totem.Presentation.Controllers
 		}
 
 		[HttpPost]
-		[Route("{id}/Products")]
+		[Route("{id}/products")]
 		public ActionResult AddProductsToCategory(string id, CategoryProductsToAddDTO categoryProductsToAddDTO)
 		{
 			try
@@ -114,7 +114,7 @@ namespace Api.Totem.Presentation.Controllers
 		}
 
 		[HttpDelete]
-		[Route("{id}/Products")]
+		[Route("{id}/products")]
 		public ActionResult RemoveProductsFromCategory(string id, CategoryProductsToRemoveDTO categoryProductsToRemoveDTO)
 		{
 			try

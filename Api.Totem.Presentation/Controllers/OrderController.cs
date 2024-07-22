@@ -1,12 +1,13 @@
 ﻿using Api.Totem.Application.DTOs.OrderItems;
 using Api.Totem.Application.DTOs.Orders;
 using Api.Totem.Application.Interfaces;
+using Api.Totem.Domain.Enumerators;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Totem.Presentation.Controllers
 {
-	[Route("api/[controller]")]
 	[ApiController]
+	[Route("orders")]
 	public class OrderController : ControllerBase
 	{
 		private readonly IOrderService _orderService;
@@ -16,6 +17,7 @@ namespace Api.Totem.Presentation.Controllers
 			_orderService = orderService;
 		}
 
+		#region Get and List
 		[HttpGet]
 		[Route("")]
 		public ActionResult List()
@@ -43,7 +45,9 @@ namespace Api.Totem.Presentation.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
+		#endregion
 
+		#region Create
 		[HttpPost]
 		[Route("")]
 		public ActionResult Create()
@@ -60,16 +64,18 @@ namespace Api.Totem.Presentation.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
+		#endregion
 
-		[HttpPost]
-		[Route("")]
-		public ActionResult SetType(string id, OrderToSetTypeDTO orderToSetTypeDTO)
+		#region Update
+		[HttpPatch]
+		[Route("{id}/type")]
+		public ActionResult SetType(string id, OrderType orderType)
 		{
 			try
 			{
 				return StatusCode(
 					StatusCodes.Status200OK,
-					_orderService.SetType(id, orderToSetTypeDTO)
+					_orderService.SetType(id, orderType)
 				);
 			}
 			catch (Exception ex)
@@ -78,8 +84,78 @@ namespace Api.Totem.Presentation.Controllers
 			}
 		}
 
+		[HttpPatch]
+		[Route("{id}/payment")]
+		public ActionResult SetPaymentMethod(string id, PaymentMethod paymentMethod)
+		{
+			try
+			{
+				return StatusCode(
+					StatusCodes.Status200OK,
+					_orderService.SetPaymentMethod(id, paymentMethod)
+				);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
+		[HttpPatch]
+		[Route("{id}/pager")]
+		public ActionResult SetPagerId(string id, int pagerId)
+		{
+			try
+			{
+				return StatusCode(
+					StatusCodes.Status200OK,
+					_orderService.SetPagerId(id, pagerId)
+				);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
+		[HttpPatch]
+		[Route("{id}/comment")]
+		public ActionResult SetComment(string id, string comment)
+		{
+			try
+			{
+				return StatusCode(
+					StatusCodes.Status200OK,
+					_orderService.SetComment(id, comment)
+				);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+
+		[HttpPatch]
+		[Route("{id}")]
+		public ActionResult Confirm(string id)
+		{
+			try
+			{
+				return StatusCode(
+					StatusCodes.Status200OK,
+					_orderService.Confirm(id)
+				);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+		#endregion
+
+		#region OrderItem
 		[HttpPost]
-		[Route("{id}/Items")]
+		[Route("{id}/items")]
 		public ActionResult AddItem(string id, OrderItemToSaveDTO orderItemToSaveDTO)
 		{
 			try
@@ -95,8 +171,8 @@ namespace Api.Totem.Presentation.Controllers
 			}
 		}
 
-		[HttpPatch]
-		[Route("{id}/Items/{orderItemId}")]
+		[HttpPut]
+		[Route("{id}/items/{orderItemId}")]
 		public ActionResult UpdateItem(string id, string orderItemId, OrderItemToSaveDTO orderItemToSaveDTO)
 		{
 			try
@@ -113,7 +189,7 @@ namespace Api.Totem.Presentation.Controllers
 		}
 
 		[HttpDelete]
-		[Route("{id}/Items/{orderItemId}")]
+		[Route("{id}/items/{orderItemId}")]
 		public ActionResult RemoveItem(string id, string orderItemId)
 		{
 			try
@@ -128,7 +204,9 @@ namespace Api.Totem.Presentation.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
+		#endregion
 
+		#region Delete
 		[HttpDelete]
 		[Route("{id}")]
 		public ActionResult Delete(string id)
@@ -143,5 +221,6 @@ namespace Api.Totem.Presentation.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
+		#endregion
 	}
 }

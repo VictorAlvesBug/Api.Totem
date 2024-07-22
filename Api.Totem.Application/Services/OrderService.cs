@@ -7,6 +7,9 @@ using Api.Totem.Application.Mappers;
 using Api.Totem.Domain.Entities;
 using Api.Totem.Domain.Enumerators;
 using Api.Totem.Domain.Interfaces.Repositories;
+using Api.Totem.Helpers.Extensions;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace Api.Totem.Application.Services
 {
@@ -51,11 +54,49 @@ namespace Api.Totem.Application.Services
 			return PrepareToShow(Save(order));
 		}
 
-		public OrderToShowDTO SetType(string id, OrderToSetTypeDTO orderToSetTypeDTO)
+		public OrderToShowDTO SetType(string id, OrderType orderType)
 		{
 			var order = _orderRepository.Get(id);
 
-			order.Type = orderToSetTypeDTO.Type;
+			order.Type = orderType;
+
+			return PrepareToShow(Save(order));
+		}
+
+		public OrderToShowDTO SetPaymentMethod(string id, PaymentMethod paymentMethod)
+		{
+			var order = _orderRepository.Get(id);
+
+			order.PaymentMethod = paymentMethod;
+
+			return PrepareToShow(Save(order));
+		}
+
+		public OrderToShowDTO SetPagerId(string id, int pagerId)
+		{
+			var order = _orderRepository.Get(id);
+
+			order.PagerId = pagerId;
+
+			return PrepareToShow(Save(order));
+		}
+
+		public OrderToShowDTO SetComment(string id, string comment)
+		{
+			var order = _orderRepository.Get(id);
+
+			order.Comment = comment;
+
+			return PrepareToShow(Save(order));
+		}
+
+		public OrderToShowDTO Confirm(string id)
+		{
+			var order = _orderRepository.Get(id);
+
+			Validate(order);
+			order.Status = OrderStatus.Ordered;
+			order.OrderedDate = DateTime.Now;
 
 			return PrepareToShow(Save(order));
 		}
@@ -106,10 +147,10 @@ namespace Api.Totem.Application.Services
 
 			orderItem.Price += _productRepository.Get(orderItem.MainProductId).Price;
 
-			orderItem.SideProductIds.ToList().ForEach(sideProductId =>
-			{
+            foreach (var sideProductId in orderItem.SideProductIds)
+            {
 				orderItem.Price += _productRepository.Get(sideProductId).Price;
-			});
+			}
 		}
 
 		private Order Save(Order order)
@@ -136,7 +177,7 @@ namespace Api.Totem.Application.Services
 
 		private void FillAdditionalPropertiesToShow(OrderDTO orderDTO)
 		{
-			foreach(var orderItem in orderDTO.Items)
+			foreach (var orderItem in orderDTO.Items)
 			{
 				orderItem.Category = _categoryRepository.Get(orderItem.CategoryId).MapToCategoryDTO();
 
@@ -149,7 +190,49 @@ namespace Api.Totem.Application.Services
 
 		private void FillAdditionalPropertiesToShow(IEnumerable<OrderDTO> ordersDTO)
 		{
-			ordersDTO.ToList().ForEach(orderDTO => FillAdditionalPropertiesToShow(orderDTO));
+            foreach (var orderDTO in ordersDTO)
+            {
+				FillAdditionalPropertiesToShow(orderDTO);
+			}
+		}
+
+		private void Validate(Order order)
+		{
+			if (order == null)
+				throw new Exception("The order cannot be null.");
+
+			if (!order.Items.SafeAny())
+				throw new Exception("The order must have at least one item.");
+
+			var tuplesIdsNotFound = new List<Tuple<string, string>>();
+
+			foreach (var item in order.Items)
+			{
+				if (!_categoryRepository.TryGet(item.CategoryId, out _))
+					tuplesIdsNotFound.Add(new Tuple<string, string>(nameof(Category), item.CategoryId));
+
+				if (!_productRepository.TryGet(item.MainProductId, out _))
+					tuplesIdsNotFound.Add(new Tuple<string, string>(nameof(Product), item.MainProductId));
+
+                foreach (var sideProductId in item.SideProductIds)
+					if (!_productRepository.TryGet(sideProductId, out _))
+						tuplesIdsNotFound.Add(new Tuple<string, string>(nameof(Product), sideProductId));
+			}
+
+			if (tuplesIdsNotFound.SafeAny())
+			{
+				var sb = new StringBuilder();
+
+				foreach (var group in tuplesIdsNotFound.GroupBy(tuple => tuple.Item1))
+				{
+					var entityName = group.Key.ToCamelCase();
+					var idsNotFound = group.Select(item => item.Item2);
+
+					sb.AppendLine($"No {entityName} were found with the following Id(s): {idsNotFound.JoinThis()}.");
+				}
+
+				throw new ArgumentException(sb.ToString());
+			}
 		}
 	}
 

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Totem.Presentation.Controllers
 {
 	[ApiController]
-	[Route("Products")]
+	[Route("products")]
 	public class ProductController : ControllerBase
 	{
 		private readonly IProductService _productService;
@@ -60,7 +60,7 @@ namespace Api.Totem.Presentation.Controllers
 			}
 		}
 
-		[HttpPatch]
+		[HttpPut]
 		[Route("{id}")]
 		public ActionResult Update(string id, ProductToUpdateDTO productToUpdateDTO)
 		{
@@ -78,7 +78,7 @@ namespace Api.Totem.Presentation.Controllers
 		}
 
 		[HttpPatch]
-		[Route("{id}/Availability")]
+		[Route("{id}/availability")]
 		public ActionResult UpdateAvailability(string id, ProductToUpdateAvailabilityDTO productToUpdateAvailabilityDTO)
 		{
 			try

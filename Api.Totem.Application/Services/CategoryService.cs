@@ -1,5 +1,6 @@
 ﻿using Api.Totem.Application.DTOs.Categories;
 using Api.Totem.Application.DTOs.Products;
+using Api.Totem.Application.DTOs.SideDishSets;
 using Api.Totem.Application.Interfaces;
 using Api.Totem.Application.Mappers;
 using Api.Totem.Domain.Entities;
@@ -71,11 +72,18 @@ namespace Api.Totem.Application.Services
 		{
 			var category = _categoryRepository.Get(id);
 
-            foreach (var productId in categoryProductsToAddDTO.ProductIds)
-                if(_productRepository.Get(productId) == null)
-					throw new ArgumentException($"No product was found with {nameof(productId)} = {productId}.");
+			var productIdsNotFound = new List<string>();
 
-			category.ProductIds = categoryProductsToAddDTO.ProductIds;
+			foreach (var productId in categoryProductsToAddDTO.ProductIds)
+			{
+				if (!_productRepository.TryGet(productId, out _))
+					productIdsNotFound.Add(productId);
+			}
+
+			if (productIdsNotFound.SafeAny())
+				throw new ArgumentException($"No products were found with the following {nameof(BaseEntity.Id)}(s): {productIdsNotFound.JoinThis()}.");
+
+			category.ProductIds = category.ProductIds.Concat(categoryProductsToAddDTO.ProductIds);
 
 			var categoryDTO = _categoryRepository.Update(category).MapToCategoryDTO();
 			FillAdditionalPropertiesToShow(categoryDTO);
@@ -86,9 +94,16 @@ namespace Api.Totem.Application.Services
 		{
 			var category = _categoryRepository.Get(id);
 
+			var productIdsNotFound = new List<string>();
+			
 			foreach (var productId in categoryProductsToRemoveDTO.ProductIds)
-				if (_productRepository.Get(productId) == null)
-					throw new ArgumentException($"No product was found with {nameof(productId)} = {productId}.");
+			{
+				if (!_productRepository.TryGet(productId, out _))
+					productIdsNotFound.Add(productId);
+			}
+
+			if(productIdsNotFound.SafeAny())
+				throw new ArgumentException($"No products were found with the following {nameof(BaseEntity.Id)}(s): {productIdsNotFound.JoinThis()}.");
 
 			category.ProductIds = category.ProductIds
 				.Where(productId => !categoryProductsToRemoveDTO.ProductIds.Contains(productId));
@@ -115,11 +130,18 @@ namespace Api.Totem.Application.Services
 
 			if (categoryDTO.SideDishSets is not null)
 			{
-				categoryDTO.SideDishSets.ToList().ForEach(sideDishSetDTO =>
-				{
-					sideDishSetDTO.Category = allCategoriesDTO.FirstOrDefault(item => item.Id == sideDishSetDTO.CategoryId)
-					 ?? throw new Exception($"No {nameof(categoryDTO)} was found with {nameof(sideDishSetDTO.CategoryId)} = '{sideDishSetDTO.CategoryId}'");
-				});
+				var categoryIdsNotFound = new List<string>();
+
+                foreach (var sideDishSetDTO in categoryDTO.SideDishSets)
+                {
+					sideDishSetDTO.Category = allCategoriesDTO.FirstOrDefault(item => item.Id == sideDishSetDTO.CategoryId);
+
+					if (sideDishSetDTO.Category == null)
+						categoryIdsNotFound.Add(sideDishSetDTO.CategoryId);
+				}
+
+				if(categoryIdsNotFound.SafeAny())
+					throw new Exception($"No {nameof(categoryDTO)}(s) were found with the following {nameof(BaseEntity.Id)}(s): {categoryIdsNotFound.JoinThis()}");
 			}
 
 			if (categoryDTO.ComboItemCategoryIds is not null)
@@ -135,8 +157,10 @@ namespace Api.Totem.Application.Services
 			var allProductsDTO = _productRepository.List().ConvertTo<ProductDTO>();
 			var allCategoriesDTO = _categoryRepository.List().ConvertTo<CategoryDTO>();
 
-			categoriesDTO.ToList().ForEach(category =>
-				FillAdditionalPropertiesToShow(category, allProductsDTO, allCategoriesDTO));
+            foreach (var category in categoriesDTO)
+            {
+				FillAdditionalPropertiesToShow(category, allProductsDTO, allCategoriesDTO);
+			}
 		}
 	}
 }

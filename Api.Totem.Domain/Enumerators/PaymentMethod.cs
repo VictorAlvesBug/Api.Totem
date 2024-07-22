@@ -1,6 +1,6 @@
 ﻿namespace Api.Totem.Domain.Enumerators
 {
-	public enum PaymentType
+	public enum PaymentMethod
 	{
 		CreditCard = 1,
 		DebitCard = 2,
