@@ -26,6 +26,9 @@ namespace Api.Totem.Application.Services
 
 		public ProductToShowDTO Create(ProductToCreateDTO productToCreateDTO)
 		{
+			if(productToCreateDTO is null)
+				throw new ArgumentNullException(nameof(productToCreateDTO));
+
 			var product = productToCreateDTO.MapToProduct();
 
 			product.Id = Guid.NewGuid().ToString();
@@ -36,6 +39,9 @@ namespace Api.Totem.Application.Services
 
 		public ProductToShowDTO Update(string id, ProductToUpdateDTO productToUpdateDTO)
 		{
+			if (productToUpdateDTO is null)
+				throw new ArgumentNullException(nameof(productToUpdateDTO));
+
 			var product = _productRepository.Get(id);
 
 			product.Name = productToUpdateDTO.Name;
@@ -47,6 +53,9 @@ namespace Api.Totem.Application.Services
 
 		public ProductToShowDTO UpdateAvailability(string id, ProductToUpdateAvailabilityDTO productToUpdateAvailabilityDTO)
 		{
+			if (productToUpdateAvailabilityDTO is null)
+				throw new ArgumentNullException(nameof(productToUpdateAvailabilityDTO));
+
 			var product = _productRepository.Get(id);
 
 			product.Available = productToUpdateAvailabilityDTO.Available;

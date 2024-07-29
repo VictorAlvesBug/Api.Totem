@@ -18,7 +18,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Api.Totem.Data\product.json = Api.Totem.Data\product.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Totem.Application", "Api.Totem.Application\Api.Totem.Application.csproj", "{5B66B319-547E-4DB9-8D9B-A7CE2F729150}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Totem.Application", "Api.Totem.Application\Api.Totem.Application.csproj", "{5B66B319-547E-4DB9-8D9B-A7CE2F729150}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Totem.Application.Test", "Api.Totem.Application.Test\Api.Totem.Application.Test.csproj", "{6CB1DF60-7BDA-455F-AA42-7B76B3D790FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +48,10 @@ Global
 		{5B66B319-547E-4DB9-8D9B-A7CE2F729150}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B66B319-547E-4DB9-8D9B-A7CE2F729150}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B66B319-547E-4DB9-8D9B-A7CE2F729150}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CB1DF60-7BDA-455F-AA42-7B76B3D790FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CB1DF60-7BDA-455F-AA42-7B76B3D790FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CB1DF60-7BDA-455F-AA42-7B76B3D790FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CB1DF60-7BDA-455F-AA42-7B76B3D790FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
