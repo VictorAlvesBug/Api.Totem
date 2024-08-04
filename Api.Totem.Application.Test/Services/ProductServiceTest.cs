@@ -1,89 +1,92 @@
 ﻿using Api.Totem.Application.DTOs.Products;
+using Api.Totem.Application.Interfaces;
 using Api.Totem.Application.Services;
+using Api.Totem.Application.Test.Helpers;
 using Api.Totem.Domain.Entities;
 using Api.Totem.Domain.Interfaces.Repositories;
+using Api.Totem.Helpers.Extensions;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using Moq;
+using Moq.AutoMock;
 
 namespace Api.Totem.Application.Test.Services
 {
 	public class ProductServiceTest
 	{
 		private readonly IFixture _fixture;
-		private readonly List<Product> _mockProducts;
-		private readonly string _mockInvalidId;
+		private readonly List<Product> _templateProducts;
+		private readonly AutoMocker _mocker;
         public ProductServiceTest()
         {
 			_fixture = new Fixture().Customize(new AutoMoqCustomization());
-
-			_mockProducts = new List<Product>
-			{
-				_fixture.Create<Product>(),
-				_fixture.Create<Product>(),
-				_fixture.Create<Product>(),
-				_fixture.Create<Product>(),
-				_fixture.Create<Product>(),
-			};
-
-			_mockInvalidId = "INVALID_ID";
+			_mocker = new AutoMocker();
+			_templateProducts = Enumerable.Range(0, 5)
+				.Select(_ => _fixture.Create<Product>()).ToList();
 		}
 
         [Fact]
 		public void ListProductsTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
 
 			// Act
-			var actual = productService.List().ToList();
+			var actualProducts = productService.List().ToList();
 
 			// Assert
-			Assert.Equal(_mockProducts.Count, actual.Count);
+			Assert.Equal(_templateProducts.Count, actualProducts.Count);
 		}
 
 		[Fact]
 		public void GetProductTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			var expectedProduct = _templateProducts.PickOneRandomly();
 
 			// Act
-			var actual = productService.Get(_fixture.Create<string>());
+			var actualProduct = productService.Get(expectedProduct.Id);
 
 			// Assert
-			Assert.NotNull(actual);
+			Assert.NotNull(actualProduct);
+			Assert.Equal(expectedProduct.Id, actualProduct.Id);
 		}
 
 		[Fact]
 		public void GetInvalidProductTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			string invalidId = Guid.NewGuid().ToString();
 
 			// Act & Assert
-			Assert.Throws<ArgumentException>(() => productService.Get(_mockInvalidId));
+			Assert.Throws<ArgumentException>(() => productService.Get(invalidId));
 		}
 
 		[Fact]
 		public void CreateProductTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			var expectedProduct = _fixture.Create<ProductToCreateDTO>();
 
 			// Act
-			var actual = productService.Create(_fixture.Create<ProductToCreateDTO>());
+			var actualProduct = productService.Create(expectedProduct);
 
 			// Assert
-			Assert.NotNull(actual.Id);
-			Assert.True(actual.Available);
+			Assert.NotNull(actualProduct);
+			Assert.Equal(expectedProduct.Name, actualProduct.Name);
+			Assert.Equal(expectedProduct.Description, actualProduct.Description);
+			Assert.Equal(expectedProduct.Price, actualProduct.Price);
+			Assert.NotNull(actualProduct.Id);
+			Assert.True(actualProduct.Available);
 		}
 
 		[Fact]
 		public void CreateInvalidProductTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
 
 			// Act & Assert
 			Assert.Throws<ArgumentNullException>(() => productService.Create(null));
@@ -93,158 +96,130 @@ namespace Api.Totem.Application.Test.Services
 		public void UpdateProductTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
-			var productToUpdateDTO = _fixture.Create<ProductToUpdateDTO>();
+			var productService = CreateProductServiceInstance();
+			var id = _templateProducts.PickOneRandomly().Id;
+			var expectedProduct = _fixture.Create<ProductToUpdateDTO>();
 
 			// Act
-			var actual = productService.Update(_fixture.Create<string>(), productToUpdateDTO);
+			var actualProduct = productService.Update(id, expectedProduct);
 
 			// Assert
-			Assert.Equal(productToUpdateDTO.Name, actual.Name);
-			Assert.Equal(productToUpdateDTO.Description, actual.Description);
-			Assert.Equal(productToUpdateDTO.Price, actual.Price);
+			Assert.NotNull(actualProduct);
+			Assert.Equal(id, actualProduct.Id);
+			Assert.Equal(expectedProduct.Name, actualProduct.Name);
+			Assert.Equal(expectedProduct.Description, actualProduct.Description);
+			Assert.Equal(expectedProduct.Price, actualProduct.Price);
 		}
 
 		[Fact]
 		public void UpdateInvalidProductTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			var id = _templateProducts.PickOneRandomly().Id;
 
 			// Act & Assert
-			Assert.Throws<ArgumentNullException>(() => productService.Update(_fixture.Create<string>(), null));
+			Assert.Throws<ArgumentNullException>(() => productService.Update(id, null));
 		}
 
 		[Fact]
 		public void UpdateProductWithInvalidIdTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			string invalidId = Guid.NewGuid().ToString();
 
 			// Act & Assert
-			Assert.Throws<ArgumentException>(() => productService.Update(_mockInvalidId, _fixture.Create<ProductToUpdateDTO>()));
+			Assert.Throws<ArgumentException>(() => productService.Update(invalidId, _fixture.Create<ProductToUpdateDTO>()));
 		}
 
 		[Fact]
 		public void UpdateInvalidProductWithInvalidIdTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			string invalidId = Guid.NewGuid().ToString();
 
 			// Act & Assert
-			Assert.Throws<ArgumentNullException>(() => productService.Update(_mockInvalidId, null));
+			Assert.Throws<ArgumentNullException>(() => productService.Update(invalidId, null));
 		}
 
 		[Fact]
 		public void UpdateProductAvailabilityTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
-			var productToUpdateAvailabilityDTO = _fixture.Create<ProductToUpdateAvailabilityDTO>();
+			var productService = CreateProductServiceInstance();
+			var id = _templateProducts.PickOneRandomly().Id;
+			var expectedProduct = _fixture.Create<ProductToUpdateAvailabilityDTO>();
 
 			// Act
-			var actual = productService.UpdateAvailability(_fixture.Create<string>(), productToUpdateAvailabilityDTO);
+			var actualProduct = productService.UpdateAvailability(id, expectedProduct);
 
 			// Assert
-			Assert.Equal(productToUpdateAvailabilityDTO.Available, actual.Available);
+			Assert.NotNull(actualProduct);
+			Assert.Equal(expectedProduct.Available, actualProduct.Available);
 		}
 
 		[Fact]
 		public void UpdateInvalidProductAvailabilityTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			var id = _templateProducts.PickOneRandomly().Id;
 
 			// Act & Assert
-			Assert.Throws<ArgumentNullException>(() => productService.UpdateAvailability(_fixture.Create<string>(), null));
+			Assert.Throws<ArgumentNullException>(() => productService.UpdateAvailability(id, null));
 		}
 
 		[Fact]
 		public void UpdateProductAvailabilityWithInvalidIdTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			string invalidId = Guid.NewGuid().ToString();
 
 			// Act & Assert
-			Assert.Throws<ArgumentException>(() => productService.UpdateAvailability(_mockInvalidId, _fixture.Create<ProductToUpdateAvailabilityDTO>()));
+			Assert.Throws<ArgumentException>(() => productService.UpdateAvailability(invalidId, _fixture.Create<ProductToUpdateAvailabilityDTO>()));
 		}
 
 		[Fact]
 		public void UpdateInvalidProductAvailabilityWithInvalidIdTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			string invalidId = Guid.NewGuid().ToString();
 
 			// Act & Assert
-			Assert.Throws<ArgumentNullException>(() => productService.UpdateAvailability(_mockInvalidId, null));
+			Assert.Throws<ArgumentNullException>(() => productService.UpdateAvailability(invalidId, null));
 		}
 
 		[Fact]
 		public void DeleteProductTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			var id = _templateProducts.PickOneRandomly().Id;
 
 			// Act & Assert
-			productService.Delete(_fixture.Create<string>());
+			productService.Delete(id);
 		}
 
 		[Fact]
 		public void DeleteInvalidProductTest()
 		{
 			// Arrange
-			var productService = new ProductService(CreateProductRepositoryMock().Object);
+			var productService = CreateProductServiceInstance();
+			string invalidId = Guid.NewGuid().ToString();
 
 			// Act & Assert
-			Assert.Throws<ArgumentException>(() => productService.Delete(_mockInvalidId));
+			Assert.Throws<ArgumentException>(() => productService.Delete(invalidId));
 		}
 
-		private Mock<IProductRepository> CreateProductRepositoryMock()
+		private IProductService CreateProductServiceInstance()
 		{
-			var productRepository = new Mock<IProductRepository>();
-
-			productRepository
-				.Setup(repo => repo.List())
-				.Returns(_mockProducts);
-
-			Product outValidValue = new Product();
-			productRepository
-				.Setup(repo => repo.TryGet(It.IsAny<string>(), out outValidValue))
-				.Returns(true);
-
-			Product outInvalidValue;
-			productRepository
-				.Setup(repo => repo.TryGet(_mockInvalidId, out outInvalidValue))
-				.Returns(false);
-
-			productRepository
-				.Setup(repo => repo.Get(It.IsAny<string>()))
-				.Returns((string id) =>
-					_fixture
-						.Build<Product>()
-						.With(x => x.Id, id)
-						.Create());
-
-			productRepository
-				.Setup(repo => repo.Get(_mockInvalidId))
-				.Throws<ArgumentException>();
-
-			productRepository
-				.Setup(repo => repo.Create(It.IsAny<Product>()))
-				.Returns((Product product) => product);
-
-			productRepository
-				.Setup(repo => repo.Update(It.IsAny<Product>()))
-				.Returns((Product product) => product);
-
-			productRepository
-				.Setup(repo => repo.Delete(It.IsAny<string>()));
-
-			productRepository
-				.Setup(repo => repo.Delete(_mockInvalidId))
-				.Throws<ArgumentException>();
-
-			return productRepository;
+			var products = new List<Product>(_templateProducts);
+			RepositoryMockHelper.SetupMockRepository<IProductRepository, Product>(_mocker, products);
+			return _mocker.CreateInstance<ProductService>();
 		}
 	}
 }

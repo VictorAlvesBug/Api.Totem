@@ -15,5 +15,16 @@
 
 			return list.Any(predicate);
 		}
+
+		public static T PickOneRandomly<T>(this IEnumerable<T> list)
+		{
+			if (list is null)
+				return default;
+
+			var random = new Random();
+			var index = random.Next(list.Count() - 1);
+
+			return list.ToArray()[index];
+		}
 	}
 }

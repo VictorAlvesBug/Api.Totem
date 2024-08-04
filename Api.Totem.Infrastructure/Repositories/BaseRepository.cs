@@ -1,7 +1,7 @@
 ﻿using Api.Totem.Domain.Entities;
 using Api.Totem.Domain.Interfaces.Repositories;
 using Api.Totem.Helpers.Extensions;
-using Api.Totem.Infrastructure.Utils;
+using Api.Totem.Infrastructure.Helpers;
 
 namespace Api.Totem.Infrastructure.Repositories
 {
@@ -16,12 +16,12 @@ namespace Api.Totem.Infrastructure.Repositories
 
 		public IEnumerable<TEntity> List()
 		{
-			return FileUtils.GetListFromFile<TEntity>();
+			return DatabaseFileHelper.GetListFromFile<TEntity>();
 		}
 
 		public bool TryGet(string id, out TEntity entity)
 		{
-			var entities = FileUtils.GetListFromFile<TEntity>();
+			var entities = DatabaseFileHelper.GetListFromFile<TEntity>();
 
 			entity = entities.FirstOrDefault(item => item.Id == id);
 
@@ -40,37 +40,37 @@ namespace Api.Totem.Infrastructure.Repositories
 
 		public TEntity Create(TEntity entity)
 		{
-			var entities = FileUtils.GetListFromFile<TEntity>();
+			var entities = DatabaseFileHelper.GetListFromFile<TEntity>();
 
-			FileUtils.SaveListToFile(entities.Append(entity));
+			DatabaseFileHelper.SaveListToFile(entities.Append(entity));
 
 			return entity;
 		}
 
 		public TEntity Update(TEntity entity)
 		{
-			var entities = FileUtils.GetListFromFile<TEntity>();
+			var entities = DatabaseFileHelper.GetListFromFile<TEntity>();
 
 			if (!entities.SafeAny(item => item.Id == entity.Id))
 				throw new ArgumentException($"No {_entityName} was found with {nameof(BaseEntity.Id)} = {entity.Id}.");
 
 			entities = entities.Where(item => item.Id != entity.Id);
 
-			FileUtils.SaveListToFile(entities.Append(entity));
+			DatabaseFileHelper.SaveListToFile(entities.Append(entity));
 
 			return entity;
 		}
 
 		public void Delete(string id)
 		{
-			var entities = FileUtils.GetListFromFile<TEntity>();
+			var entities = DatabaseFileHelper.GetListFromFile<TEntity>();
 
 			if (!entities.SafeAny(item => item.Id == id))
 				throw new ArgumentException($"No {_entityName} was found with {nameof(BaseEntity.Id)} = {id}.");
 
 			entities = entities.Where(entity => entity.Id != id);
 
-			FileUtils.SaveListToFile(entities);
+			DatabaseFileHelper.SaveListToFile(entities);
 		}
 	}
 }

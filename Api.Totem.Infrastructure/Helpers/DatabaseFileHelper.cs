@@ -2,9 +2,9 @@
 using Api.Totem.Infrastructure.Models;
 using Newtonsoft.Json;
 
-namespace Api.Totem.Infrastructure.Utils
+namespace Api.Totem.Infrastructure.Helpers
 {
-	public static class FileUtils
+	public static class DatabaseFileHelper
 	{
 		private static readonly string _dataFolderPath = @"C:\Users\victo\OneDrive\Desktop\Pessoal\Projetos\Api.Totem\Api.Totem.Data";
 
