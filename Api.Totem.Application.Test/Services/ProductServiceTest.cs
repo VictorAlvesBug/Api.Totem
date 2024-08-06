@@ -14,14 +14,13 @@ namespace Api.Totem.Application.Test.Services
 	public class ProductServiceTest
 	{
 		private readonly IFixture _fixture;
-		private readonly List<Product> _templateProducts;
+		private readonly DatabaseMockHelper _databaseMock;
 		private readonly AutoMocker _mocker;
         public ProductServiceTest()
         {
 			_fixture = new Fixture().Customize(new AutoMoqCustomization());
 			_mocker = new AutoMocker();
-			_templateProducts = Enumerable.Range(0, 5)
-				.Select(_ => _fixture.Create<Product>()).ToList();
+			_databaseMock = new DatabaseMockHelper(_fixture);
 		}
 
         [Fact]
@@ -34,7 +33,7 @@ namespace Api.Totem.Application.Test.Services
 			var actualProducts = productService.List().ToList();
 
 			// Assert
-			Assert.Equal(_templateProducts.Count, actualProducts.Count);
+			Assert.Equal(_databaseMock.products.Count, actualProducts.Count);
 		}
 
 		[Fact]
@@ -42,7 +41,7 @@ namespace Api.Totem.Application.Test.Services
 		{
 			// Arrange
 			var productService = CreateProductServiceInstance();
-			var expectedProduct = _templateProducts.PickOneRandomly();
+			var expectedProduct = _databaseMock.products.PickOneRandomly();
 
 			// Act
 			var actualProduct = productService.Get(expectedProduct.Id);
@@ -97,7 +96,7 @@ namespace Api.Totem.Application.Test.Services
 		{
 			// Arrange
 			var productService = CreateProductServiceInstance();
-			var id = _templateProducts.PickOneRandomly().Id;
+			var id = _databaseMock.products.PickOneRandomly().Id;
 			var expectedProduct = _fixture.Create<ProductToUpdateDTO>();
 
 			// Act
@@ -116,7 +115,7 @@ namespace Api.Totem.Application.Test.Services
 		{
 			// Arrange
 			var productService = CreateProductServiceInstance();
-			var id = _templateProducts.PickOneRandomly().Id;
+			var id = _databaseMock.products.PickOneRandomly().Id;
 
 			// Act & Assert
 			Assert.Throws<ArgumentNullException>(() => productService.Update(id, null));
@@ -149,7 +148,7 @@ namespace Api.Totem.Application.Test.Services
 		{
 			// Arrange
 			var productService = CreateProductServiceInstance();
-			var id = _templateProducts.PickOneRandomly().Id;
+			var id = _databaseMock.products.PickOneRandomly().Id;
 			var expectedProduct = _fixture.Create<ProductToUpdateAvailabilityDTO>();
 
 			// Act
@@ -165,7 +164,7 @@ namespace Api.Totem.Application.Test.Services
 		{
 			// Arrange
 			var productService = CreateProductServiceInstance();
-			var id = _templateProducts.PickOneRandomly().Id;
+			var id = _databaseMock.products.PickOneRandomly().Id;
 
 			// Act & Assert
 			Assert.Throws<ArgumentNullException>(() => productService.UpdateAvailability(id, null));
@@ -198,7 +197,7 @@ namespace Api.Totem.Application.Test.Services
 		{
 			// Arrange
 			var productService = CreateProductServiceInstance();
-			var id = _templateProducts.PickOneRandomly().Id;
+			var id = _databaseMock.products.PickOneRandomly().Id;
 
 			// Act & Assert
 			productService.Delete(id);
@@ -217,7 +216,7 @@ namespace Api.Totem.Application.Test.Services
 
 		private IProductService CreateProductServiceInstance()
 		{
-			var products = new List<Product>(_templateProducts);
+			var products = new List<Product>(_databaseMock.products);
 			RepositoryMockHelper.SetupMockRepository<IProductRepository, Product>(_mocker, products);
 			return _mocker.CreateInstance<ProductService>();
 		}
