@@ -38,6 +38,9 @@ namespace Api.Totem.Application.Services
 
 		public CategoryToShowDTO Create(CategoryToCreateDTO categoryToCreateDTO)
 		{
+			if (categoryToCreateDTO is null)
+				throw new ArgumentNullException(nameof(categoryToCreateDTO));
+
 			var category = categoryToCreateDTO.MapToCategory();
 
 			category.Id = Guid.NewGuid().ToString();
@@ -49,6 +52,9 @@ namespace Api.Totem.Application.Services
 
 		public CategoryToShowDTO Update(string id, CategoryToUpdateDTO categoryToUpdateDTO)
 		{
+			if (categoryToUpdateDTO is null)
+				throw new ArgumentNullException(nameof(categoryToUpdateDTO));
+
 			var category = _categoryRepository.Get(id);
 
 			category.CategoryType = categoryToUpdateDTO.CategoryType;
@@ -70,6 +76,9 @@ namespace Api.Totem.Application.Services
 
 		public CategoryToShowDTO AddProducts(string id, CategoryProductsToAddDTO categoryProductsToAddDTO)
 		{
+			if (categoryProductsToAddDTO is null)
+				throw new ArgumentNullException(nameof(categoryProductsToAddDTO));
+
 			var category = _categoryRepository.Get(id);
 
 			var productIdsNotFound = new List<string>();
@@ -92,6 +101,9 @@ namespace Api.Totem.Application.Services
 
 		public CategoryToShowDTO RemoveProducts(string id, CategoryProductsToRemoveDTO categoryProductsToRemoveDTO)
 		{
+			if (categoryProductsToRemoveDTO is null)
+				throw new ArgumentNullException(nameof(categoryProductsToRemoveDTO));
+
 			var category = _categoryRepository.Get(id);
 
 			var productIdsNotFound = new List<string>();

@@ -1,4 +1,5 @@
 ﻿using Api.Totem.Application.DTOs.Categories;
+using Api.Totem.Application.DTOs.SideDishSets;
 using Api.Totem.Application.Interfaces;
 using Api.Totem.Application.Services;
 using Api.Totem.Application.Test.Helpers;
@@ -70,6 +71,15 @@ namespace Api.Totem.Application.Test.Services
 			var expectedCategory = _fixture
 				.Build<CategoryToCreateDTO>()
 				.With(c => c.ComboItemCategoryIds, _databaseMock.categories.Select(a => a.Id))
+				.With(
+					c => c.SideDishSets, 
+					_fixture.Build<SideDishSetToCreateDTO>()
+						.With(
+							sideDishSet => sideDishSet.CategoryId, 
+							_databaseMock.categories.PickOneRandomly().Id
+						)
+						.CreateMany()
+				)
 				.Create();
 
 			// Act
@@ -105,6 +115,15 @@ namespace Api.Totem.Application.Test.Services
 			var expectedCategory = _fixture
 				.Build<CategoryToUpdateDTO>()
 				.With(c => c.ComboItemCategoryIds, _databaseMock.categories.Select(a => a.Id))
+				.With(
+					c => c.SideDishSets,
+					_fixture.Build<SideDishSetToCreateDTO>()
+						.With(
+							sideDishSet => sideDishSet.CategoryId,
+							_databaseMock.categories.PickOneRandomly().Id
+						)
+						.CreateMany()
+				)
 				.Create();
 
 			// Act
@@ -179,6 +198,52 @@ namespace Api.Totem.Application.Test.Services
 			// Act & Assert
 			Assert.Throws<ArgumentException>(() => categoryService.Delete(invalidId));
 		}
+
+		[Fact]
+		public void AddProductsToCategoryTest()
+		{
+			// Arrange
+			var categoryService = CreateCategoryServiceInstance();
+			var category = _databaseMock.categories.PickOneRandomly();
+			var categoryProductsToAddDTO = new CategoryProductsToAddDTO
+			{
+				ProductIds = _databaseMock.products.PickManyRandomly().Select(product => product.Id)
+			};
+			var expectedProductIds = category.ProductIds.Concat(categoryProductsToAddDTO.ProductIds).Distinct();
+
+			// Act
+			var actualCategory = categoryService.AddProducts(category.Id, categoryProductsToAddDTO);
+
+			// Assert
+			Assert.NotNull(actualCategory);
+			Assert.Equal(category.Id, actualCategory.Id);
+			Assert.True(expectedProductIds.HasSameItems(actualCategory.Products.Select(product => product.Id)));
+		}
+
+		// TODO: Adicionar testes para cenários de erro do AddProducts
+
+		[Fact]
+		public void RemoveProductsFromCategoryTest()
+		{
+			// Arrange
+			var categoryService = CreateCategoryServiceInstance();
+			var category = _databaseMock.categories.PickOneRandomly();
+			var categoryProductsToRemoveDTO = new CategoryProductsToRemoveDTO
+			{
+				ProductIds = _databaseMock.products.PickManyRandomly().Select(product => product.Id)
+			};
+			var expectedProductIds = category.ProductIds.Except(categoryProductsToRemoveDTO.ProductIds);
+
+			// Act
+			var actualCategory = categoryService.RemoveProducts(category.Id, categoryProductsToRemoveDTO);
+
+			// Assert
+			Assert.NotNull(actualCategory);
+			Assert.Equal(category.Id, actualCategory.Id);
+			Assert.True(expectedProductIds.HasSameItems(actualCategory.Products.Select(product => product.Id)));
+		}
+
+		// TODO: Adicionar testes para cenários de erro do RemoveProducts
 
 		private ICategoryService CreateCategoryServiceInstance()
 		{
