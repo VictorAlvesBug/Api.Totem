@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Api.Totem.Domain.Enumerators;
 
 namespace Api.Totem.Domain.Entities
 {
-	internal class Pager
+	public class Pager
 	{
-	}
+        public int Id { get; set; }
+        public PagerStatus Status { get; set; }
+        public DateTime CreatedDate { get; set; }
+    }
 }
