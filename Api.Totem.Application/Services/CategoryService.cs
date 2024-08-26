@@ -169,9 +169,9 @@ namespace Api.Totem.Application.Services
 			var allProductsDTO = _productRepository.List().ConvertTo<ProductDTO>();
 			var allCategoriesDTO = _categoryRepository.List().ConvertTo<CategoryDTO>();
 
-            foreach (var category in categoriesDTO)
+			for (var i = 0; i < categoriesDTO.Count(); i++)
             {
-				FillAdditionalPropertiesToShow(category, allProductsDTO, allCategoriesDTO);
+				FillAdditionalPropertiesToShow(categoriesDTO.ElementAt(i), allProductsDTO, allCategoriesDTO);
 			}
 		}
 	}

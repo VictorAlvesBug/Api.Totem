@@ -19,7 +19,21 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
+// Configuring CORS
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowLocalhost3000",
+		builder =>
+		{
+			builder.WithOrigins("http://localhost:3000")
+				.AllowAnyHeader()
+				.AllowAnyMethod();
+		});
+});
+
 var app = builder.Build();
+
+app.UseCors("AllowLocalhost3000");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

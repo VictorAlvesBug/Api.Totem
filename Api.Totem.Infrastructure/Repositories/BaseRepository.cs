@@ -2,21 +2,40 @@
 using Api.Totem.Domain.Interfaces.Repositories;
 using Api.Totem.Helpers.Extensions;
 using Api.Totem.Infrastructure.Helpers;
+using Dapper;
+using MySql.Data.MySqlClient;
+using System.Data;
 
 namespace Api.Totem.Infrastructure.Repositories
 {
 	public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : BaseEntity
 	{
 		private readonly string _entityName;
+		private readonly string _tableName;
+		private readonly string _connectionString;
 
 		public BaseRepository()
 		{
 			_entityName = typeof(TEntity).Name.ToCamelCase();
+			_tableName = typeof(TEntity).Name.ToSnakeCase();
+			_connectionString = GetConnectionString();
+		}
+
+		private string GetConnectionString()
+		{
+			string user = Environment.GetEnvironmentVariable("MY_SQL_USER")
+				?? throw new Exception("MY_SQL_USER environment variable was not found.");
+			string password = Environment.GetEnvironmentVariable("MY_SQL_PASSWORD")
+				?? throw new Exception("MY_SQL_PASSWORD environment variable was not found.");
+			return $"Server=localhost;Database=totem;User={user};Password={password};";
 		}
 
 		public IEnumerable<TEntity> List()
 		{
-			return DatabaseFileHelper.GetListFromFile<TEntity>();
+			using (IDbConnection dbConnection = new MySqlConnection(_connectionString))
+			{
+				return dbConnection.QueryAsync<TEntity>($"SELECT * FROM {_tableName}").GetAwaiter().GetResult();
+			}
 		}
 
 		public bool TryGet(string id, out TEntity entity)
