@@ -23,11 +23,22 @@ namespace Api.Totem.Helpers.Extensions
 
 			foreach (char caracter in pascalCaseValue)
 			{
-				if(caracter.GetCharType() == CharType.UpperCaseLetter)
-				sbSnakeCaseValue.Append($"_{caracter}");
+				var lowerCaseCaracter = caracter.ToString().ToLower();
+
+				if (caracter.GetCharType() == CharType.UpperCaseLetter)
+				{
+					sbSnakeCaseValue.Append($"_{lowerCaseCaracter}");
+					continue;
+				}
+
+				sbSnakeCaseValue.Append(lowerCaseCaracter);
 			}
 
 			return sbSnakeCaseValue.ToString().ReplaceRegex("(^_)|(_$)", "");
+		}
+		public static IEnumerable<string> ToSnakeCase(this IEnumerable<string> pascalCaseValues)
+		{
+			return pascalCaseValues.Select(pascalCaseValue => pascalCaseValue.ToSnakeCase());
 		}
 
 		public static CharType GetCharType(this char character)
@@ -40,7 +51,7 @@ namespace Api.Totem.Helpers.Extensions
 
 			if (Regex.IsMatch(character.ToString(), "^_$"))
 				return CharType.UnderScore;
-			
+
 			return CharType.Other;
 		}
 

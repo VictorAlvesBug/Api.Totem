@@ -1,6 +1,7 @@
 ﻿using Api.Totem.Application.DTOs.Products;
 using Api.Totem.Application.Interfaces;
 using Api.Totem.Application.Mappers;
+using Api.Totem.Domain.Entities;
 using Api.Totem.Domain.Interfaces.Repositories;
 
 namespace Api.Totem.Application.Services

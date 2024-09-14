@@ -1,6 +1,8 @@
 ## DDLs PARA CRIAÇÃO DA ESTRUTURA DO BANCO
-/*
+
 CREATE DATABASE totem;
+
+USE totem;
 
 CREATE TABLE `product` (
 	`id` VARCHAR(36) NOT NULL PRIMARY KEY,
@@ -75,7 +77,7 @@ CREATE TABLE `category_side_dish_set` (
     `side_dish_set_id` VARCHAR(36) NOT NULL,
     FOREIGN KEY (`category_id`) REFERENCES `category`(`id`),
     FOREIGN KEY (`side_dish_set_id`) REFERENCES `side_dish_set`(`id`)
-);*/
+);
 
 
 SELECT * FROM `product`;

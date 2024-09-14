@@ -16,59 +16,88 @@ namespace Api.Totem.Infrastructure.Repositories
 
 		public BaseRepository()
 		{
-			_entityName = typeof(TEntity).Name.ToCamelCase();
-			_tableName = typeof(TEntity).Name.ToSnakeCase();
+			var entityType = typeof(TEntity);
+			_entityName = entityType.Name;
+			_tableName = entityType.Name.ToSnakeCase();
 			_connectionString = GetConnectionString();
 		}
 
 		private string GetConnectionString()
 		{
-			string user = Environment.GetEnvironmentVariable("MY_SQL_USER")
-				?? throw new Exception("MY_SQL_USER environment variable was not found.");
-			string password = Environment.GetEnvironmentVariable("MY_SQL_PASSWORD")
-				?? throw new Exception("MY_SQL_PASSWORD environment variable was not found.");
-			return $"Server=localhost;Database=totem;User={user};Password={password};";
+			string MY_SQL_USER = Environment.GetEnvironmentVariable(nameof(MY_SQL_USER))
+				?? throw new Exception($"{nameof(MY_SQL_USER)} environment variable was not found.");
+			string MY_SQL_PASSWORD = Environment.GetEnvironmentVariable(nameof(MY_SQL_PASSWORD))
+				?? throw new Exception($"{nameof(MY_SQL_PASSWORD)} environment variable was not found.");
+			return $"Server=localhost;Database=totem;User={MY_SQL_USER};Password={MY_SQL_PASSWORD};";
 		}
 
 		public IEnumerable<TEntity> List(List<string> attributesToGet = null)
 		{
 			using IDbConnection dbConnection = new MySqlConnection(_connectionString);
 
-			var strAttributesToGet = ComputeAttributesToGet(attributesToGet);
+			var query = $@"
+				SELECT 
+					{attributesToGet.ToExpression<TEntity>()} 
+				FROM 
+					{_tableName}
+				";
 
-			return dbConnection.Query<TEntity>($"SELECT {strAttributesToGet} FROM {_tableName}");
+			return dbConnection.Query<TEntity>(query);
 		}
 
-		public bool TryGet(string id, out TEntity entity, List<string> attributesToGet = null)
+		public bool TryGet(string id, out TEntity? entity, List<string> attributesToGet = null)
 		{
 			using IDbConnection dbConnection = new MySqlConnection(_connectionString);
 
-			var strAttributesToGet = ComputeAttributesToGet(attributesToGet);
+			var query = $@"
+				SELECT 
+					{attributesToGet.ToExpression<TEntity>()} 
+				FROM 
+					{_tableName}
+				WHERE 
+					`{nameof(id)}` = @{nameof(id)}
+				";
 
-			entity = dbConnection.QueryFirstOrDefault<TEntity>($"SELECT {strAttributesToGet} FROM {_tableName} WHERE `{nameof(id)}` = @id");
+			entity = dbConnection.QueryFirstOrDefault<TEntity>(
+				query, 
+				new
+				{
+					id
+				});
 
 			return entity != null;
 		}
 
 		public TEntity Get(string id, List<string> attributesToGet = null)
 		{
-			var exists = TryGet(id, out TEntity entity, attributesToGet);
+			var exists = TryGet(id, out TEntity? entity, attributesToGet);
 
-			if(exists)
+			if (exists)
 				return entity;
 
-			throw new ArgumentException($"No {_tableName} was found with {nameof(BaseEntity.Id).ToSnakeCase()} = {id}.");
+			throw new ArgumentException($"No item was found in {_tableName} with {nameof(BaseEntity.Id).ToSnakeCase()} = {id}.");
 		}
 
 		public TEntity Create(TEntity entity)
 		{
-			throw new NotImplementedException();
+			using IDbConnection dbConnection = new MySqlConnection(_connectionString);
 
-			/*var entities = DatabaseFileHelper.GetListFromFile<TEntity>();
+			string attributeNames = entity.GetAttributeNames();
+			string attributeValues = entity.GetAttributeValues();
 
-			DatabaseFileHelper.SaveListToFile(entities.Append(entity));
+			var query = $@"
+				INSERT INTO {_tableName}
+					({attributeNames})
+				VALUES
+					({attributeValues})
+				";
 
-			return entity;*/
+			var rowsAffected = dbConnection.Execute(query);
+
+			if (rowsAffected > 0)
+				return Get(entity.Id);
+
+			throw new ArgumentException($"Error while trying to insert item into {_tableName}.");
 		}
 
 		public TEntity Update(TEntity entity)
@@ -99,14 +128,6 @@ namespace Api.Totem.Infrastructure.Repositories
 			entities = entities.Where(entity => entity.Id != id);
 
 			DatabaseFileHelper.SaveListToFile(entities);*/
-		}
-
-		private string ComputeAttributesToGet(List<string> attributes)
-		{
-			if(attributes == null)
-				return "*";
-
-			return attributes.Select(attribute => $"`{attribute.ToSnakeCase()}`").JoinThis(",");
 		}
 	}
 }

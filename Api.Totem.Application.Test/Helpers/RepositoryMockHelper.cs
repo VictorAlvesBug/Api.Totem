@@ -19,7 +19,7 @@ namespace Api.Totem.Application.Test.Helpers
 
 			var mockRepository = mocker.GetMock<TRepository>();
 
-			mockRepository
+			/*mockRepository
 				.Setup(repo => repo.List())
 				.Returns(entities);
 
@@ -42,7 +42,7 @@ namespace Api.Totem.Application.Test.Helpers
 						throw new ArgumentException($"No {entityName} was found with {nameof(BaseEntity.Id)} = {id}.");
 
 					return entity;
-				});
+				});*/
 
 			mockRepository
 				.Setup(repo => repo.Create(It.IsAny<TEntity>()))
