@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Totem.Application", "Ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Totem.Application.Test", "Api.Totem.Application.Test\Api.Totem.Application.Test.csproj", "{6CB1DF60-7BDA-455F-AA42-7B76B3D790FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Totem.Infrastructure.Test", "Api.Totem.Infrastructure.Test\Api.Totem.Infrastructure.Test.csproj", "{13031F45-D720-4E33-AB16-F0456851DFB5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{6CB1DF60-7BDA-455F-AA42-7B76B3D790FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CB1DF60-7BDA-455F-AA42-7B76B3D790FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CB1DF60-7BDA-455F-AA42-7B76B3D790FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13031F45-D720-4E33-AB16-F0456851DFB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13031F45-D720-4E33-AB16-F0456851DFB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13031F45-D720-4E33-AB16-F0456851DFB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13031F45-D720-4E33-AB16-F0456851DFB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

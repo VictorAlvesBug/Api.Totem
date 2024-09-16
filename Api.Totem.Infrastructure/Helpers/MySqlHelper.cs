@@ -1,13 +1,5 @@
 ﻿using Api.Totem.Helpers.Extensions;
-using Moq;
-using Org.BouncyCastle.Asn1.Cms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using static Dapper.SqlMapper;
 
 namespace Api.Totem.Infrastructure.Helpers
 {
@@ -38,12 +30,10 @@ namespace Api.Totem.Infrastructure.Helpers
 			return properties;
 		}
 
-		private static string GetValueAsString<TEntity>(this TEntity entity, PropertyInfo property)
+		public static string ConvertDynamicToString(dynamic? dynamicValue)
 		{
-			dynamic? dynamicValue = property.GetValue(entity);
-
 			if (dynamicValue == null)
-				return null;
+				return string.Empty;
 
 			switch (dynamicValue)
 			{
@@ -55,7 +45,7 @@ namespace Api.Totem.Infrastructure.Helpers
 				case float floatValue: return $"{floatValue.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 				case double doubleValue: return $"{doubleValue.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 				case string stringValue: return $"'{stringValue}'";
-				case char charValue: return $"{charValue}";
+				case char charValue: return $"'{charValue}'";
 				case bool boolValue: return $"{(boolValue ? "TRUE" : "FALSE")}";
 				case DateTime dateTimeValue: return $"{dateTimeValue:yyyy-MM-dd HH:mm:ss}";
 				case TimeSpan timeSpanValue: return $"'{timeSpanValue}'";
@@ -66,6 +56,11 @@ namespace Api.Totem.Infrastructure.Helpers
 				default:
 					return $"'{dynamicValue}'";
 			}
+		}
+
+		private static string GetValueAsString<TEntity>(this TEntity entity, PropertyInfo property)
+		{
+			return ConvertDynamicToString(property.GetValue(entity));
 		}
 
 		public static string GetAttributeNames<TEntity>(this TEntity entity, List<string> except = null)
