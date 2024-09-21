@@ -47,8 +47,8 @@ namespace Api.Totem.Infrastructure.Helpers
 				case string stringValue: return $"'{stringValue}'";
 				case char charValue: return $"'{charValue}'";
 				case bool boolValue: return $"{(boolValue ? "TRUE" : "FALSE")}";
-				case DateTime dateTimeValue: return $"{dateTimeValue:yyyy-MM-dd HH:mm:ss}";
-				case TimeSpan timeSpanValue: return $"'{timeSpanValue}'";
+				case DateTime dateTimeValue: return $"'{dateTimeValue:yyyy-MM-dd HH:mm:ss.fff}'";
+				case TimeSpan ts: return $"'{ts.Days} {ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds:000}'";
 				case Guid guidValue: return $"'{guidValue}'";
 
 				case object objectValue: return $"'{objectValue.SerializeToJson()}'";
