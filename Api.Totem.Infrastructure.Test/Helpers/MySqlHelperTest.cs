@@ -2,6 +2,7 @@ using Api.Totem.Helpers.Extensions;
 using Api.Totem.Infrastructure.Helpers;
 using Google.Protobuf.WellKnownTypes;
 using System.Drawing;
+using System.Reflection;
 
 namespace Api.Totem.Infrastructure.Test.Helpers
 {
@@ -36,12 +37,16 @@ namespace Api.Totem.Infrastructure.Test.Helpers
 
 			dictStringDynamic.Add($"'{guid}'", guid);
 
+			MethodInfo methodConvertDynamicToString = typeof(MySqlHelper).GetMethod("ConvertDynamicToString", BindingFlags.NonPublic | BindingFlags.Static);
+
+			Assert.NotNull(methodConvertDynamicToString);
+
 			foreach (var kvp in dictStringDynamic)
 			{
 				var expectedString = kvp.Key;
 				var dynamicValue = kvp.Value;
 
-				var actualString = MySqlHelper.ConvertDynamicToString(dynamicValue);
+				var actualString = methodConvertDynamicToString.Invoke(null, new object[] { dynamicValue });
 
 				Assert.Equal(expectedString, actualString);
 			}

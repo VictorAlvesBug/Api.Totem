@@ -5,19 +5,18 @@ using Api.Totem.Infrastructure.Helpers;
 using Dapper;
 using MySql.Data.MySqlClient;
 using System.Data;
+using static Dapper.SqlMapper;
 
 namespace Api.Totem.Infrastructure.Repositories
 {
-	public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : BaseEntity
+	public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : BaseEntity, new()
 	{
-		private readonly string _entityName;
 		private readonly string _tableName;
 		private readonly string _connectionString;
 
 		public BaseRepository()
 		{
 			var entityType = typeof(TEntity);
-			_entityName = entityType.Name;
 			_tableName = entityType.Name.ToSnakeCase();
 			_connectionString = GetConnectionString();
 		}
@@ -35,9 +34,14 @@ namespace Api.Totem.Infrastructure.Repositories
 		{
 			using IDbConnection dbConnection = new MySqlConnection(_connectionString);
 
+			string attributeNames =
+				attributesToGet.SafeAny()
+				? new TEntity().GetFilteredAttributeNames(attributesToGet)
+				: "*";
+
 			var query = $@"
 				SELECT 
-					{attributesToGet.ToExpression<TEntity>()} 
+					{attributeNames} 
 				FROM 
 					{_tableName}
 				";
@@ -49,20 +53,32 @@ namespace Api.Totem.Infrastructure.Repositories
 		{
 			using IDbConnection dbConnection = new MySqlConnection(_connectionString);
 
+			var filterAttributes = new List<string>
+			{
+				nameof(BaseEntity.Id)
+			};
+
+			string attributeNames =
+				attributesToGet.SafeAny()
+				? new TEntity().GetFilteredAttributeNames(attributesToGet)
+				: "*";
+
+			string attributeComparisons = new TEntity().GetFilteredAttributeComparisons(attributesToCompare: filterAttributes);
+
 			var query = $@"
 				SELECT 
-					{attributesToGet.ToExpression<TEntity>()} 
+					{attributeNames} 
 				FROM 
 					{_tableName}
 				WHERE 
-					`{nameof(id)}` = @{nameof(id)}
+					{attributeComparisons}
 				";
 
 			entity = dbConnection.QueryFirstOrDefault<TEntity>(
 				query, 
 				new
 				{
-					id
+					Id = id
 				});
 
 			return entity != null;
@@ -75,15 +91,15 @@ namespace Api.Totem.Infrastructure.Repositories
 			if (exists)
 				return entity;
 
-			throw new ArgumentException($"No item was found in {_tableName} with {nameof(BaseEntity.Id).ToSnakeCase()} = {id}.");
+			throw new ArgumentException($"No item was found in {_tableName} with {nameof(BaseEntity.Id)} = {id}.");
 		}
 
 		public TEntity Create(TEntity entity)
 		{
 			using IDbConnection dbConnection = new MySqlConnection(_connectionString);
 
-			string attributeNames = entity.GetAttributeNames();
-			string attributeValues = entity.GetAttributeValues();
+			string attributeNames = entity.GetAllAttributeNames();
+			string attributeValues = entity.GetAllAttributeValues();
 
 			var query = $@"
 				INSERT INTO {_tableName}
@@ -92,7 +108,7 @@ namespace Api.Totem.Infrastructure.Repositories
 					({attributeValues})
 				";
 
-			var rowsAffected = dbConnection.Execute(query);
+			var rowsAffected = dbConnection.Execute(query, entity);
 
 			if (rowsAffected > 0)
 				return Get(entity.Id);
@@ -102,32 +118,62 @@ namespace Api.Totem.Infrastructure.Repositories
 
 		public TEntity Update(TEntity entity)
 		{
-			throw new NotImplementedException();
+			using IDbConnection dbConnection = new MySqlConnection(_connectionString);
 
-			/*var entities = DatabaseFileHelper.GetListFromFile<TEntity>();
+			var filterAttributes = new List<string>
+			{
+				nameof(BaseEntity.Id)
+			};
 
-			if (!entities.SafeAny(item => item.Id == entity.Id))
-				throw new ArgumentException($"No {_tableName} was found with {nameof(BaseEntity.Id).ToSnakeCase()} = {entity.Id}.");
+			string attributeAssignments = entity.GetAllAttributeAssignments(exceptByAttributeNames: filterAttributes);
+			string attributeComparisons = entity.GetFilteredAttributeComparisons(attributesToCompare: filterAttributes);
 
-			entities = entities.Where(item => item.Id != entity.Id);
+			var query = $@"
+				UPDATE 
+					{_tableName}
+				SET
+					{attributeAssignments}
+				WHERE
+					{attributeComparisons}
+				";
 
-			DatabaseFileHelper.SaveListToFile(entities.Append(entity));
+			var rowsAffected = dbConnection.Execute(query, entity);
 
-			return entity;*/
+			if (rowsAffected > 0)
+				return Get(entity.Id);
+
+			throw new ArgumentException($"Error while trying to update item of {_tableName}.");
 		}
 
 		public void Delete(string id)
 		{
-			throw new NotImplementedException();
+			using IDbConnection dbConnection = new MySqlConnection(_connectionString);
 
-			/*var entities = DatabaseFileHelper.GetListFromFile<TEntity>();
+			var filterAttributes = new List<string>
+			{
+				nameof(BaseEntity.Id)
+			};
 
-			if (!entities.SafeAny(item => item.Id == id))
-				throw new ArgumentException($"No {_entityName} was found with {nameof(BaseEntity.Id)} = {id}.");
+			string attributeComparisons = new TEntity().GetFilteredAttributeComparisons(attributesToCompare: filterAttributes);
 
-			entities = entities.Where(entity => entity.Id != id);
+			var query = $@"
+				DELETE FROM
+					{_tableName}
+				WHERE
+					{attributeComparisons}
+				";
 
-			DatabaseFileHelper.SaveListToFile(entities);*/
+			var rowsAffected = dbConnection.Execute(
+				query,
+				new
+				{
+					Id = id
+				});
+
+			if (rowsAffected > 0)
+				return;
+
+			throw new ArgumentException($"Error while trying to update item of {_tableName}.");
 		}
 	}
 }

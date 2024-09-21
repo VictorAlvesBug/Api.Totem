@@ -5,35 +5,83 @@ namespace Api.Totem.Infrastructure.Helpers
 {
 	public static class MySqlHelper
 	{
-		public static string ToExpression<TEntity>(this IEnumerable<string> attributes)
-		{
-			if (attributes == null)
-				return "*";
 
+		public static string GetAllAttributeNames<TEntity>(this TEntity entity, List<string> exceptByAttributeNames = null) =>
+			entity
+				.GetAllPropertiesExceptBy(exceptByAttributeNames)
+				.Select(property => $"`{property.Name.ToSnakeCase()}`")
+				.JoinThis();
+
+		public static string GetAllAttributeValues<TEntity>(this TEntity entity, List<string> exceptByAttributeNames = null) =>
+			entity
+				.GetAllPropertiesExceptBy(exceptByAttributeNames)
+				.Select(property => $"{entity.GetValueAsString(property)}")
+				.JoinThis();
+
+		public static string GetAllAttributeAssignments<TEntity>(this TEntity entity, List<string> exceptByAttributeNames = null) =>
+			entity
+				.GetAllPropertiesExceptBy(exceptByAttributeNames)
+				//.Select(property => $"`{property.Name.ToSnakeCase()}` = {entity.GetValueAsString(property)}")
+				.Select(property => $"`{property.Name.ToSnakeCase()}` = @{property.Name}")
+				.JoinThis();
+
+		public static string GetFilteredAttributeComparisons<TEntity>(this TEntity entity, List<string> attributesToCompare) =>
+			entity
+				.GetFilteredProperties(attributesToCompare)
+				//.Select(property => $"`{property.Name.ToSnakeCase()}` = {entity.GetValueAsString(property)}")
+				.Select(property => $"`{property.Name.ToSnakeCase()}` = @{property.Name}")
+				.JoinThis();
+
+		public static string GetFilteredAttributeNames<TEntity>(this TEntity entity, List<string> attributeNamesToGet) =>
+			entity
+				.GetFilteredProperties(attributeNamesToGet)
+				.Select(property => $"`{property.Name.ToSnakeCase()}`")
+				.JoinThis();
+
+		private static IEnumerable<PropertyInfo> GetAllPropertiesExceptBy<TEntity>(this TEntity entity, List<string> exceptByAttributeNames = null)
+		{
+			var properties = entity.GetType().GetProperties().AsEnumerable();
+
+			if (exceptByAttributeNames.SafeAny())
+			{
+				ValidateAttributeNames<TEntity>(exceptByAttributeNames);
+				return properties.Where(property => !exceptByAttributeNames.Contains(property.Name));
+			}
+
+			return properties;
+		}
+
+		private static IEnumerable<PropertyInfo> GetFilteredProperties<TEntity>(this TEntity entity, List<string> attributesToGet = null)
+		{
+			if (!attributesToGet.SafeAny())
+				throw new ArgumentException("Provide at least one attribute name to get.");
+
+			ValidateAttributeNames<TEntity>(attributesToGet);
+
+			return entity.GetType()
+				.GetProperties()
+				.AsEnumerable()
+				.Where(property => attributesToGet.Contains(property.Name));
+		}
+
+		private static void ValidateAttributeNames<TEntity>(this IEnumerable<string> attributes)
+		{
 			var validAttributes = typeof(TEntity).GetProperties().Select(prop => prop.Name).ToList();
 
 			var notFoundAttributes = attributes.Except(validAttributes);
 
 			if (notFoundAttributes.SafeAny())
-				throw new ArgumentException($"The following attributes were not found in {typeof(TEntity).Name} entity: {notFoundAttributes.JoinThis(",")}.");
-
-			return attributes.Select(attribute => $"`{attribute.ToSnakeCase()}`").JoinThis(",");
+				throw new ArgumentException($"The following attributes were not found in {typeof(TEntity).Name} entity: {notFoundAttributes.JoinThis()}.");
 		}
-
-		private static IEnumerable<PropertyInfo> GetFilteredProperties<TEntity>(this TEntity entity, List<string> except = null)
+		private static string GetValueAsString<TEntity>(this TEntity entity, PropertyInfo property)
 		{
-			var properties = entity.GetType().GetProperties().AsEnumerable();
-
-			if (except.SafeAny())
-				properties = properties.Where(property => !except.Contains(property.Name));
-
-			return properties;
+			return ConvertDynamicToString(property.GetValue(entity));
 		}
-
-		public static string ConvertDynamicToString(dynamic? dynamicValue)
+		
+		private static string ConvertDynamicToString(dynamic? dynamicValue)
 		{
 			if (dynamicValue == null)
-				return string.Empty;
+				return "NULL";
 
 			switch (dynamicValue)
 			{
@@ -58,23 +106,5 @@ namespace Api.Totem.Infrastructure.Helpers
 			}
 		}
 
-		private static string GetValueAsString<TEntity>(this TEntity entity, PropertyInfo property)
-		{
-			return ConvertDynamicToString(property.GetValue(entity));
-		}
-
-		public static string GetAttributeNames<TEntity>(this TEntity entity, List<string> except = null)
-		{
-			var properties = entity.GetFilteredProperties(except);
-
-			return properties.Select(property => $"`{property.Name}`").JoinThis(",");
-		}
-
-		public static string GetAttributeValues<TEntity>(this TEntity entity, List<string> except = null)
-		{
-			var properties = entity.GetFilteredProperties(except);
-
-			return properties.Select(property => $"{entity.GetValueAsString(property)}").JoinThis(",");
-		}
 	}
 }
