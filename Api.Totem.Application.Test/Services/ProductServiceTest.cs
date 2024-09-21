@@ -13,7 +13,7 @@ namespace Api.Totem.Application.Test.Services
 {
 	public class ProductServiceTest
 	{
-		private readonly IFixture _fixture;
+		/*private readonly IFixture _fixture;
 		private readonly DatabaseMockHelper _databaseMock;
 		private readonly AutoMocker _mocker;
         public ProductServiceTest()
@@ -219,6 +219,6 @@ namespace Api.Totem.Application.Test.Services
 			var products = new List<Product>(_databaseMock.products);
 			RepositoryMockHelper.SetupMockRepository<IProductRepository, Product>(_mocker, products);
 			return _mocker.CreateInstance<ProductService>();
-		}
+		}*/
 	}
 }

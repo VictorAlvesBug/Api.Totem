@@ -1,8 +1,8 @@
 ﻿namespace Api.Totem.Domain.Entities
 {
-	public class SideDishSet : BaseEntity
+	public class CategoryProduct : BaseEntity
 	{
-		public int Amount { get; set; }
+		public string ProductId { get; set; }
 		public string CategoryId { get; set; }
 	}
 }

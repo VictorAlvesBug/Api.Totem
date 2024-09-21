@@ -11,15 +11,24 @@ namespace Api.Totem.Application.Services
 {
 	public class CategoryService : ICategoryService
 	{
-		private readonly ICategoryRepository _categoryRepository;
-		private readonly IProductRepository _productRepository;
+		private readonly IBaseRepository<Category> _categoryRepository;
+		private readonly IBaseRepository<Product> _productRepository;
+		private readonly IBaseRepository<SideDishSet> _sideDishSetRepository;
+		private readonly IBaseRepository<CategorySideDishSet> _categorySideDishSetRepository;
+		private readonly IBaseRepository<CategoryProduct> _categoryProductRepository;
 
 		public CategoryService(
-			ICategoryRepository categoryRepository,
-			IProductRepository productRepository)
+			IBaseRepository<Category> categoryRepository,
+			IBaseRepository<Product> productRepository,
+			IBaseRepository<SideDishSet> sideDishSetRepository,
+			IBaseRepository<CategorySideDishSet> categorySideDishSetRepository,
+			IBaseRepository<CategoryProduct> categoryProductRepository)
 		{
 			_categoryRepository = categoryRepository;
 			_productRepository = productRepository;
+			_sideDishSetRepository = sideDishSetRepository;
+			_categorySideDishSetRepository = categorySideDishSetRepository;
+			_categoryProductRepository = categoryProductRepository;
 		}
 
 		public IEnumerable<CategoryToShowDTO> List()
@@ -60,9 +69,10 @@ namespace Api.Totem.Application.Services
 			category.CategoryType = categoryToUpdateDTO.CategoryType;
 			category.Name = categoryToUpdateDTO.Name;
 			category.ComplementType = categoryToUpdateDTO.ComplementType;
-			category.SideDishSets = categoryToUpdateDTO.SideDishSets?.MapToSideDishSet();
 			category.ComboItemCategoryIds = categoryToUpdateDTO.ComboItemCategoryIds;
 			category.ComboAdditionalPrice = categoryToUpdateDTO.ComboAdditionalPrice;
+
+			SaveSideDishSets(id, categoryToUpdateDTO.SideDishSets);
 
 			var categoryDTO = _categoryRepository.Update(category).MapToCategoryDTO();
 			FillAdditionalPropertiesToShow(categoryDTO);
@@ -173,6 +183,35 @@ namespace Api.Totem.Application.Services
             {
 				FillAdditionalPropertiesToShow(categoriesDTO.ElementAt(i), allProductsDTO, allCategoriesDTO);
 			}
+		}
+
+		private void SaveSideDishSets(string categoryId, IEnumerable<SideDishSetToCreateDTO>? sideDishSetsToCreateDTO = null)
+		{
+			var categoryIdCondition = new Dictionary<string, dynamic>
+				{
+					{ nameof(CategorySideDishSet.CategoryId), categoryId }
+				};
+
+			var alreadySavedSideDishSetIds = 
+				_categorySideDishSetRepository.List(categoryIdCondition)
+				.Select(categorySideDishSet => categorySideDishSet.SideDishSetId);
+
+			_categorySideDishSetRepository.Delete(categoryIdCondition);
+
+			alreadySavedSideDishSetIds.ForEach(sideDishSetId =>
+			{
+				_sideDishSetRepository.Delete(
+					new Dictionary<string, dynamic>
+					{
+						{ nameof(SideDishSet.Id), sideDishSetId }
+					});
+			});
+
+			sideDishSetsToCreateDTO.MapToSideDishSet()
+				.ForEach((sideDishSet) => {
+					sideDishSet.Id = Guid.NewGuid().ToString();
+					_sideDishSetRepository.Create(sideDishSet);
+				});
 		}
 	}
 }

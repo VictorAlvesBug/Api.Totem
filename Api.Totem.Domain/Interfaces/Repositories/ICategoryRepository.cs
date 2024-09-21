@@ -2,7 +2,7 @@
 
 namespace Api.Totem.Domain.Interfaces.Repositories
 {
-	public interface ICategoryRepository : IBaseRepository<Category>
+	/*public interface ICategoryRepository : IBaseRepository<Category>
 	{
-	}
+	}*/
 }

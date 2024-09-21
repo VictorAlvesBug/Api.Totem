@@ -30,7 +30,7 @@ namespace Api.Totem.Infrastructure.Repositories
 			return $"Server=localhost;Database=totem;User={MY_SQL_USER};Password={MY_SQL_PASSWORD};";
 		}
 
-		public IEnumerable<TEntity> List(List<string> attributesToGet = null)
+		public IEnumerable<TEntity> List(Dictionary<string, dynamic> conditions = null, List<string> attributesToGet = null)
 		{
 			using IDbConnection dbConnection = new MySqlConnection(_connectionString);
 
@@ -39,11 +39,14 @@ namespace Api.Totem.Infrastructure.Repositories
 				? new TEntity().GetFilteredAttributeNames(attributesToGet)
 				: "*";
 
+			string conditionsExpression = conditions.GetConditionsExpression();
+
 			var query = $@"
 				SELECT 
 					{attributeNames} 
 				FROM 
 					{_tableName}
+				{(conditions.SafeAny() ? $"WHERE {conditionsExpression}" : "")}
 				";
 
 			return dbConnection.Query<TEntity>(query);
@@ -63,7 +66,7 @@ namespace Api.Totem.Infrastructure.Repositories
 				? new TEntity().GetFilteredAttributeNames(attributesToGet)
 				: "*";
 
-			string attributeComparisons = new TEntity().GetFilteredAttributeComparisons(attributesToCompare: filterAttributes);
+			string attributeConditions = new TEntity().GetFilteredAttributeConditions(attributesToCompare: filterAttributes);
 
 			var query = $@"
 				SELECT 
@@ -71,7 +74,7 @@ namespace Api.Totem.Infrastructure.Repositories
 				FROM 
 					{_tableName}
 				WHERE 
-					{attributeComparisons}
+					{attributeConditions}
 				";
 
 			entity = dbConnection.QueryFirstOrDefault<TEntity>(
@@ -126,7 +129,7 @@ namespace Api.Totem.Infrastructure.Repositories
 			};
 
 			string attributeAssignments = entity.GetAllAttributeAssignments(exceptByAttributeNames: filterAttributes);
-			string attributeComparisons = entity.GetFilteredAttributeComparisons(attributesToCompare: filterAttributes);
+			string attributeConditions = entity.GetFilteredAttributeConditions(attributesToCompare: filterAttributes);
 
 			var query = $@"
 				UPDATE 
@@ -134,7 +137,7 @@ namespace Api.Totem.Infrastructure.Repositories
 				SET
 					{attributeAssignments}
 				WHERE
-					{attributeComparisons}
+					{attributeConditions}
 				";
 
 			var rowsAffected = dbConnection.Execute(query, entity);
@@ -154,13 +157,13 @@ namespace Api.Totem.Infrastructure.Repositories
 				nameof(BaseEntity.Id)
 			};
 
-			string attributeComparisons = new TEntity().GetFilteredAttributeComparisons(attributesToCompare: filterAttributes);
+			string attributeConditions = new TEntity().GetFilteredAttributeConditions(attributesToCompare: filterAttributes);
 
 			var query = $@"
 				DELETE FROM
 					{_tableName}
 				WHERE
-					{attributeComparisons}
+					{attributeConditions}
 				";
 
 			var rowsAffected = dbConnection.Execute(
@@ -169,6 +172,26 @@ namespace Api.Totem.Infrastructure.Repositories
 				{
 					Id = id
 				});
+
+			if (rowsAffected > 0)
+				return;
+
+			throw new ArgumentException($"Error while trying to update item of {_tableName}.");
+		}
+
+		public void Delete(Dictionary<string, dynamic> conditions = null)
+		{
+			using IDbConnection dbConnection = new MySqlConnection(_connectionString);
+
+			string conditionsExpression = conditions.GetConditionsExpression();
+
+			var query = $@"
+				DELETE FROM
+					{_tableName}
+				{(conditions.SafeAny() ? $"WHERE {conditionsExpression}" : "")}
+				";
+
+			var rowsAffected = dbConnection.Execute(query);
 
 			if (rowsAffected > 0)
 				return;

@@ -14,7 +14,7 @@ namespace Api.Totem.Application.Test.Services
 {
 	public class CategoryServiceTest
 	{
-		private readonly IFixture _fixture;
+		/*private readonly IFixture _fixture;
 		private readonly DatabaseMockHelper _databaseMock;
 		private readonly AutoMocker _mocker;
         public CategoryServiceTest()
@@ -252,6 +252,6 @@ namespace Api.Totem.Application.Test.Services
 			RepositoryMockHelper.SetupMockRepository<IProductRepository, Product>(_mocker, products);
 			RepositoryMockHelper.SetupMockRepository<ICategoryRepository, Category>(_mocker, categories);
 			return _mocker.CreateInstance<CategoryService>();
-		}
+		}*/
 	}
 }

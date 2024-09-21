@@ -21,22 +21,25 @@ namespace Api.Totem.Infrastructure.Helpers
 		public static string GetAllAttributeAssignments<TEntity>(this TEntity entity, List<string> exceptByAttributeNames = null) =>
 			entity
 				.GetAllPropertiesExceptBy(exceptByAttributeNames)
-				//.Select(property => $"`{property.Name.ToSnakeCase()}` = {entity.GetValueAsString(property)}")
 				.Select(property => $"`{property.Name.ToSnakeCase()}` = @{property.Name}")
 				.JoinThis();
 
-		public static string GetFilteredAttributeComparisons<TEntity>(this TEntity entity, List<string> attributesToCompare) =>
+		public static string GetFilteredAttributeConditions<TEntity>(this TEntity entity, List<string> attributesToCompare) =>
 			entity
 				.GetFilteredProperties(attributesToCompare)
-				//.Select(property => $"`{property.Name.ToSnakeCase()}` = {entity.GetValueAsString(property)}")
 				.Select(property => $"`{property.Name.ToSnakeCase()}` = @{property.Name}")
-				.JoinThis();
+				.JoinThis(" AND ");
 
 		public static string GetFilteredAttributeNames<TEntity>(this TEntity entity, List<string> attributeNamesToGet) =>
 			entity
 				.GetFilteredProperties(attributeNamesToGet)
 				.Select(property => $"`{property.Name.ToSnakeCase()}`")
 				.JoinThis();
+
+		public static string GetConditionsExpression(this Dictionary<string, dynamic> conditions) =>
+			conditions
+				.Select(kvp => $"`{kvp.Key.ToSnakeCase()}` = {ConvertDynamicToString(kvp.Value)}")
+				.JoinThis(" AND ");
 
 		private static IEnumerable<PropertyInfo> GetAllPropertiesExceptBy<TEntity>(this TEntity entity, List<string> exceptByAttributeNames = null)
 		{

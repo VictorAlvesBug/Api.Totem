@@ -15,14 +15,14 @@ namespace Api.Totem.Application.Services
 {
 	public class OrderService : IOrderService
 	{
-		private readonly IOrderRepository _orderRepository;
-		private readonly IProductRepository _productRepository;
-		private readonly ICategoryRepository _categoryRepository;
+		private readonly IBaseRepository<Order> _orderRepository;
+		private readonly IBaseRepository<Product> _productRepository;
+		private readonly IBaseRepository<Category> _categoryRepository;
 
 		public OrderService(
-			IOrderRepository orderRepository,
-			IProductRepository productRepository,
-			ICategoryRepository categoryRepository)
+			IBaseRepository<Order> orderRepository,
+			IBaseRepository<Product> productRepository,
+			IBaseRepository<Category> categoryRepository)
 		{
 			_orderRepository = orderRepository;
 			_productRepository = productRepository;
@@ -54,11 +54,11 @@ namespace Api.Totem.Application.Services
 			return PrepareToShow(Save(order));
 		}
 
-		public OrderToShowDTO SetType(string id, OrderType orderType)
+		public OrderToShowDTO SetType(string id, DeliveryType orderType)
 		{
 			var order = _orderRepository.Get(id);
 
-			order.Type = orderType;
+			order.DeliveryType = orderType;
 
 			return PrepareToShow(Save(order));
 		}

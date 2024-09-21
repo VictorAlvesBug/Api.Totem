@@ -69,7 +69,7 @@ namespace Api.Totem.Presentation.Controllers
 		#region Update
 		[HttpPatch]
 		[Route("{id}/type")]
-		public ActionResult SetType(string id, OrderType orderType)
+		public ActionResult SetType(string id, DeliveryType orderType)
 		{
 			try
 			{

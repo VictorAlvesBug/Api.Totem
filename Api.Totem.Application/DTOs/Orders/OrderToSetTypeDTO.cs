@@ -5,6 +5,6 @@ namespace Api.Totem.Application.DTOs.Orders
 {
 	public class OrderToSetTypeDTO
 	{
-		public OrderType Type { get; set; }
+		public DeliveryType Type { get; set; }
 	}
 }

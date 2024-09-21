@@ -4,8 +4,8 @@ namespace Api.Totem.Domain.Entities
 {
 	public class Order : BaseEntity
 	{
-		public OrderType? Type { get; set; }
-		public IEnumerable<OrderItem> Items { get; set; }
+		public DeliveryType? DeliveryType { get; set; }
+		//public IEnumerable<OrderItem> Items { get; set; }
 		public decimal TotalPrice { get; set; }
 		public PaymentMethod? PaymentMethod { get; set; }
 		public string Comment { get; set; }

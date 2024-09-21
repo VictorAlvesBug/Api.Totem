@@ -13,6 +13,7 @@ namespace Api.Totem.Infrastructure.Test.Helpers
 		{
 			var dictStringDynamic = new Dictionary<string, dynamic>()
 			{
+				{ "NULL", null },
 				{ "1111111", 1111111 },
 				{ "2222222", (long)2222222 },
 				{ "333.333", 333.333 },

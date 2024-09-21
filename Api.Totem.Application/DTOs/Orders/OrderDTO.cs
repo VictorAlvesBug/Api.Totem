@@ -6,7 +6,7 @@ namespace Api.Totem.Application.DTOs.Orders
 	public class OrderDTO
 	{
 		public string Id { get; set; }
-		public OrderType? Type { get; set; }
+		public DeliveryType? Type { get; set; }
 		public IEnumerable<OrderItemDTO> Items { get; set; }
 		public decimal TotalPrice { get; set; }
 		public PaymentMethod? PaymentMethod { get; set; }

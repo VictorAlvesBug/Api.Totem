@@ -10,7 +10,7 @@ namespace Api.Totem.Application.Interfaces
 		IEnumerable<OrderToShowDTO> List();
 		OrderToShowDTO Get(string id);
 		OrderToShowDTO Create();
-		OrderToShowDTO SetType(string id, OrderType orderType);
+		OrderToShowDTO SetType(string id, DeliveryType orderType);
 		OrderToShowDTO SetPaymentMethod(string id, PaymentMethod paymentMethod);
 		OrderToShowDTO SetPagerId(string id, int pagerId);
 		OrderToShowDTO SetComment(string id, string comment);

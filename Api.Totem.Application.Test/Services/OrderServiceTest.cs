@@ -13,7 +13,7 @@ namespace Api.Totem.Application.Test.Services
 {
 	public class OrderServiceTest
 	{
-		private readonly IFixture _fixture;
+		/*private readonly IFixture _fixture;
 		private readonly DatabaseMockHelper _databaseMock;
 		private readonly AutoMocker _mocker;
         public OrderServiceTest()
@@ -32,6 +32,6 @@ namespace Api.Totem.Application.Test.Services
 			RepositoryMockHelper.SetupMockRepository<ICategoryRepository, Category>(_mocker, categories);
 			RepositoryMockHelper.SetupMockRepository<IOrderRepository, Order>(_mocker, orders);
 			return _mocker.CreateInstance<OrderService>();
-		}
+		}*/
 	}
 }

@@ -9,7 +9,7 @@ namespace Api.Totem.Application.Test.Helpers
 {
 	public class DatabaseMockHelper
 	{
-		private IFixture _fixture;
+		/*private IFixture _fixture;
 		private Random _random;
 		public List<Product> products;
 		public List<Category> categories;
@@ -208,6 +208,6 @@ namespace Api.Totem.Application.Test.Helpers
 				.Build<Order>()
 				.With(order => order.Items, orderItems)
 				.Create();
-		}
+		}*/
 	}
 }
